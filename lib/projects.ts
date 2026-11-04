@@ -23,6 +23,7 @@ export interface ProjectData {
   apartment_count?: number | null;
   building_type?: string;
   under_construction?: number;
+  total_share?: number;
 }
 
 export const FALLBACK_PROJECTS: ProjectData[] = [];
@@ -112,6 +113,7 @@ export function normalizeProject(
     apartment_count: raw.apartment_count,
     building_type: raw.building_type,
     under_construction: raw.under_construction,
+    total_share: raw.total_share ? Number(raw.total_share) : undefined,
   };
 }
 
@@ -189,7 +191,6 @@ export interface ProjectDetail extends ProjectData {
   plot_size?: number | string;
   block_no?: string;
   front_road?: string;
-  total_share?: number;
   unit_per_floor?: number;
   passenger_lift?: number;
   cargo_lift?: number;
@@ -346,12 +347,14 @@ export async function getProjectBySlug(
   const cleanBase = baseUrl.replace(/\/+$/, "");
 
   try {
-    const res = await fetch(
-      `${cleanBase}/projects/${encodeURIComponent(cleanSlug)}`,
-      {
+    // The detail endpoint returns the unit-type count as `total_share`; the
+    // list endpoint carries the real share count, so it is fetched alongside.
+    const [res, listedProjects] = await Promise.all([
+      fetch(`${cleanBase}/projects/${encodeURIComponent(cleanSlug)}`, {
         next: { revalidate: 3600 },
-      },
-    );
+      }),
+      getProjects(),
+    ]);
 
     if (!res.ok) {
       console.warn(
@@ -370,7 +373,9 @@ export async function getProjectBySlug(
       return null;
     }
 
-    return normalizeProjectDetail(raw);
+    const project = normalizeProjectDetail(raw);
+    const listed = listedProjects.find((p) => p.slug === project.slug);
+    return { ...project, total_share: listed?.total_share };
   } catch (error) {
     console.error(`[getProjectBySlug] Fetch error for slug "${cleanSlug}":`, error);
     return null;

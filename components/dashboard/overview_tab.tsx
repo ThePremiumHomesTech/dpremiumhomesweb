@@ -394,8 +394,8 @@ export function OverviewTab({
   // Flats strictly from user
   const displayedFlats = myFlats || [];
 
-  // 68x68 Donut SVG circumference calculation (Figma node 8313:22380)
-  const radius = 29;
+  // Donut SVG circumference calculation
+  const radius = 23;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset =
     circumference -
@@ -403,156 +403,147 @@ export function OverviewTab({
 
   return (
     <div
-      className="flex flex-col gap-[40px] w-full"
+      className="flex flex-col gap-[36px] w-full"
       style={{ fontFamily: "'Vazirmatn', sans-serif" }}
     >
       {/* ========================================================= */}
-      {/* 1. HEADER + FOUR TOP METRIC CARDS (8313:22347)            */}
+      {/* 1. HEADER + FOUR TOP METRIC CARDS                        */}
       {/* ========================================================= */}
       <motion.div
         initial="hidden"
         animate="visible"
         variants={sectionVariants}
         custom={0}
-        className="flex flex-col gap-[24px] items-start w-full"
+        className="flex flex-col gap-[18px] items-start w-full"
       >
-        {/* Welcome Header (8313:22348) */}
-        <div className="flex flex-col gap-[12px] items-start w-full">
-          <h1 className="capitalize font-serif font-semibold text-[24px] leading-[1.1] text-[#054b3c]">
-            Overviews
-          </h1>
+        {/* Welcome Header */}
+        <div className="flex flex-col gap-1 items-start w-full">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-[#cfa564] animate-pulse" />
+            <h1 className="capitalize font-serif font-bold text-2xl sm:text-[26px] leading-tight text-[#054b3c]">
+              Overviews
+            </h1>
+          </div>
           {isLoading ? (
             <div className="h-[16px] w-48 bg-stone-200/80 rounded animate-pulse" />
           ) : (
-            <p className="text-[16px] font-normal leading-none text-[#3b3e40]">
-              Welcome back{displayName ? `, ${displayName}!` : "!"}
+            <p className="text-xs sm:text-sm font-normal text-[#59657b]">
+              Welcome back{displayName ? `, ${displayName}!` : "! Here's your property & investment overview."}
             </p>
           )}
         </div>
 
-        {/* 4 Metric Cards Container (8313:22351) */}
+        {/* 4 Metric Cards Container - Compact, Highly Responsive & No Value Truncation */}
         <motion.div
           variants={gridContainerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-[16px] w-full"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 w-full"
         >
-          {/* Card 1: Total Paid (8313:22352) */}
+          {/* Card 1: Total Paid */}
           <motion.div
             variants={cardItemVariants}
             whileHover={{ y: -3, transition: { duration: 0.2 } }}
-            className="bg-white flex h-[148px] items-center px-[16px] py-[32px] rounded-[12px] w-full transition-shadow hover:shadow-[0_10px_28px_rgba(5,75,60,0.06)]"
+            className="group bg-white flex items-center gap-3.5 sm:gap-4 p-4 sm:p-4.5 rounded-[18px] border border-[#e8ecea] shadow-[0_2px_12px_rgba(5,75,60,0.03)] hover:shadow-[0_12px_28px_rgba(5,75,60,0.08)] hover:border-[#005d4d]/25 transition-all duration-300 w-full"
           >
-            <div className="flex flex-1 gap-[14px] sm:gap-[20px] items-start min-w-0">
-              <div className="bg-[#005d4d] flex items-center justify-center rounded-full shrink-0 size-[52px] sm:size-[64px] text-white">
-                <TotalPaidIcon className="size-[26px] sm:size-[32px]" />
-              </div>
-              <div className="flex flex-1 flex-col gap-[8px] items-start min-w-0">
-                <p className="text-[16px] font-normal leading-[18px] text-[#59657b] w-full">
-                  Total Paid
-                </p>
-                <div className="flex flex-col gap-[16px] items-start w-full">
-                  {isLoading ? (
-                    <div className="h-[24px] w-32 bg-stone-200 rounded animate-pulse" />
-                  ) : (
-                    <p className="text-[22px] sm:text-[24px] font-semibold leading-none text-[#054b3c] w-full truncate">
-                      {totalPaid}
-                    </p>
-                  )}
-                  <p className="text-[14px] font-normal leading-[1.2] text-[#59657b] w-full">
-                    Paid to date
-                  </p>
-                </div>
-              </div>
+            <div className="size-[48px] sm:size-[52px] rounded-[16px] bg-[#e8f5f1] text-[#005d4d] border border-[#005d4d]/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+              <TotalPaidIcon className="size-[24px] sm:size-[26px]" />
             </div>
-          </motion.div>
-
-          {/* Card 2: Outstanding (8313:22361) */}
-          <motion.div
-            variants={cardItemVariants}
-            whileHover={{ y: -3, transition: { duration: 0.2 } }}
-            className="bg-white flex h-[148px] items-center px-[16px] py-[32px] rounded-[12px] w-full transition-shadow hover:shadow-[0_10px_28px_rgba(5,75,60,0.06)]"
-          >
-            <div className="flex flex-1 gap-[14px] sm:gap-[20px] items-start min-w-0">
-              <div className="bg-[#bf2318] flex items-center justify-center rounded-full shrink-0 size-[52px] sm:size-[64px] text-white">
-                <OutstandingIcon className="size-[26px] sm:size-[32px]" />
-              </div>
-              <div className="flex flex-1 flex-col gap-[12px] items-start min-w-0">
-                <p className="text-[16px] font-normal leading-[18px] text-[#59657b] w-full">
-                  Outstanding
-                </p>
-                <div className="flex flex-col gap-[16px] items-start w-full">
-                  {isLoading ? (
-                    <div className="h-[24px] w-32 bg-stone-200 rounded animate-pulse" />
-                  ) : (
-                    <p className="text-[22px] sm:text-[24px] font-semibold leading-none text-[#054b3c] w-full truncate">
-                      {outstanding}
-                    </p>
-                  )}
-                  <p className="text-[14px] font-normal leading-[1.2] text-[#59657b] w-full">
-                    Remaining Due
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Card 3: Total Expense (8313:22370) */}
-          <motion.div
-            variants={cardItemVariants}
-            whileHover={{ y: -3, transition: { duration: 0.2 } }}
-            className="bg-white flex h-[148px] items-center px-[16px] py-[32px] rounded-[12px] w-full transition-shadow hover:shadow-[0_10px_28px_rgba(5,75,60,0.06)]"
-          >
-            <div className="flex flex-1 gap-[14px] sm:gap-[20px] items-start min-w-0">
-              <div className="bg-[#d8a44d] flex items-center justify-center rounded-full shrink-0 size-[52px] sm:size-[64px] text-white">
-                <TotalExpenseIcon className="size-[26px] sm:size-[32px]" />
-              </div>
-              <div className="flex flex-1 flex-col gap-[16px] items-start min-w-0">
-                <p className="text-[16px] font-normal leading-[18px] text-[#59657b] w-full">
-                  Total Expense
-                </p>
-                <div className="flex flex-col gap-[16px] items-start w-full">
-                  {isLoading ? (
-                    <div className="h-[24px] w-32 bg-stone-200 rounded animate-pulse" />
-                  ) : (
-                    <p className="text-[22px] sm:text-[24px] font-semibold leading-none text-[#054b3c] w-full truncate">
-                      {totalExpense}
-                    </p>
-                  )}
-                  <p className="text-[14px] font-normal leading-[1.2] text-[#59657b] w-full">
-                    All Project Expense
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Card 4: Completion (8313:22379) */}
-          <motion.div
-            variants={cardItemVariants}
-            whileHover={{ y: -3, transition: { duration: 0.2 } }}
-            className="bg-white flex gap-[20px] h-[148px] items-center px-[16px] py-[32px] rounded-[12px] w-full transition-shadow hover:shadow-[0_10px_28px_rgba(5,75,60,0.06)]"
-          >
-            <div className="relative shrink-0 w-[68px] h-[68px] flex items-center justify-center">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#718078] block truncate">
+                Total Paid
+              </span>
               {isLoading ? (
-                <div className="w-[68px] h-[68px] rounded-full bg-stone-200 animate-pulse" />
+                <div className="h-6 w-28 bg-stone-200 rounded animate-pulse my-0.5" />
+              ) : (
+                <p className="text-[19px] sm:text-[21px] xl:text-[23px] font-bold text-[#054b3c] tracking-tight whitespace-nowrap leading-tight tabular-nums">
+                  {totalPaid}
+                </p>
+              )}
+              <span className="text-[11px] sm:text-[12px] text-[#86958d] font-normal leading-none block truncate">
+                Paid to date
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Card 2: Outstanding */}
+          <motion.div
+            variants={cardItemVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="group bg-white flex items-center gap-3.5 sm:gap-4 p-4 sm:p-4.5 rounded-[18px] border border-[#e8ecea] shadow-[0_2px_12px_rgba(5,75,60,0.03)] hover:shadow-[0_12px_28px_rgba(191,35,24,0.08)] hover:border-[#bf2318]/25 transition-all duration-300 w-full"
+          >
+            <div className="size-[48px] sm:size-[52px] rounded-[16px] bg-[#fee4e2]/70 text-[#d92d20] border border-[#d92d20]/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+              <OutstandingIcon className="size-[24px] sm:size-[26px]" />
+            </div>
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#718078] block truncate">
+                Outstanding
+              </span>
+              {isLoading ? (
+                <div className="h-6 w-28 bg-stone-200 rounded animate-pulse my-0.5" />
+              ) : (
+                <p className="text-[19px] sm:text-[21px] xl:text-[23px] font-bold text-[#d92d20] tracking-tight whitespace-nowrap leading-tight tabular-nums">
+                  {outstanding}
+                </p>
+              )}
+              <span className="text-[11px] sm:text-[12px] text-[#86958d] font-normal leading-none block truncate">
+                Remaining Due
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Card 3: Total Expense */}
+          <motion.div
+            variants={cardItemVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="group bg-white flex items-center gap-3.5 sm:gap-4 p-4 sm:p-4.5 rounded-[18px] border border-[#e8ecea] shadow-[0_2px_12px_rgba(5,75,60,0.03)] hover:shadow-[0_12px_28px_rgba(181,122,34,0.08)] hover:border-[#d8a44d]/30 transition-all duration-300 w-full"
+          >
+            <div className="size-[48px] sm:size-[52px] rounded-[16px] bg-[#fef4e6] text-[#b57a22] border border-[#b57a22]/15 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform duration-300">
+              <TotalExpenseIcon className="size-[24px] sm:size-[26px]" />
+            </div>
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#718078] block truncate">
+                Total Expense
+              </span>
+              {isLoading ? (
+                <div className="h-6 w-28 bg-stone-200 rounded animate-pulse my-0.5" />
+              ) : (
+                <p className="text-[19px] sm:text-[21px] xl:text-[23px] font-bold text-[#054b3c] tracking-tight whitespace-nowrap leading-tight tabular-nums">
+                  {totalExpense}
+                </p>
+              )}
+              <span className="text-[11px] sm:text-[12px] text-[#86958d] font-normal leading-none block truncate">
+                All Project Expense
+              </span>
+            </div>
+          </motion.div>
+
+          {/* Card 4: Completion */}
+          <motion.div
+            variants={cardItemVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="group bg-white flex items-center gap-3.5 sm:gap-4 p-4 sm:p-4.5 rounded-[18px] border border-[#e8ecea] shadow-[0_2px_12px_rgba(5,75,60,0.03)] hover:shadow-[0_12px_28px_rgba(5,75,60,0.08)] hover:border-[#005d4d]/25 transition-all duration-300 w-full"
+          >
+            <div className="relative shrink-0 size-[50px] sm:size-[54px] flex items-center justify-center">
+              {isLoading ? (
+                <div className="size-full rounded-full bg-stone-200 animate-pulse" />
               ) : (
                 <>
-                  <svg className="w-[68px] h-[68px] -rotate-90" viewBox="0 0 68 68">
+                  <svg className="size-full -rotate-90" viewBox="0 0 56 56">
                     <circle
-                      cx="34"
-                      cy="34"
+                      cx="28"
+                      cy="28"
                       r={radius}
                       stroke="#e6efed"
-                      strokeWidth="6"
+                      strokeWidth="5"
                       fill="transparent"
                     />
                     <motion.circle
-                      cx="34"
-                      cy="34"
+                      cx="28"
+                      cy="28"
                       r={radius}
                       stroke="#005d4d"
-                      strokeWidth="6"
+                      strokeWidth="5"
                       strokeDasharray={circumference}
                       initial={{ strokeDashoffset: circumference }}
                       animate={{ strokeDashoffset }}
@@ -561,19 +552,22 @@ export function OverviewTab({
                       fill="transparent"
                     />
                   </svg>
-                  <span className="absolute inset-0 flex items-center justify-center text-[18px] font-bold leading-[24px] text-[#232f43]">
+                  <span className="absolute inset-0 flex items-center justify-center text-xs sm:text-[13px] font-bold text-[#083327]">
                     {completionPct}%
                   </span>
                 </>
               )}
             </div>
-            <div className="flex flex-1 flex-col gap-[16px] items-start min-w-0">
-              <p className="text-[24px] font-semibold leading-none text-[#054b3c] w-full">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-[#718078] block truncate">
                 Completion
+              </span>
+              <p className="text-[19px] sm:text-[21px] xl:text-[23px] font-bold text-[#054b3c] tracking-tight whitespace-nowrap leading-tight">
+                {completionPct}% Complete
               </p>
-              <p className="text-[14px] font-normal leading-[1.2] text-[#59657b] w-full">
+              <span className="text-[11px] sm:text-[12px] text-[#86958d] font-normal leading-none block truncate">
                 Overall Progress
-              </p>
+              </span>
             </div>
           </motion.div>
         </motion.div>
@@ -660,7 +654,12 @@ export function OverviewTab({
             variants={gridContainerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[16px] w-full"
+            className={cn(
+              "grid gap-4 sm:gap-5 w-full",
+              displayedFlats.length === 1
+                ? "grid-cols-1 max-w-[420px]"
+                : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+            )}
           >
             {displayedFlats.map((flat, idx) => {
               const progressPct = Math.min(
@@ -757,15 +756,20 @@ export function OverviewTab({
                       </div>
                     </div>
 
-                    {/* Bottom Price & View Project Button */}
-                    <div className="mt-4 pt-3 border-t border-[#f0ebe1] flex items-center justify-between gap-3 w-full">
-                      <p className="font-heading text-base sm:text-lg font-medium text-[#083327] truncate min-w-0">
-                        {flat.price || "From ৳2.5 Cr"}
-                      </p>
+                    {/* Bottom Price & View Progress Button - Fully Responsive, No Truncation */}
+                    <div className="mt-4 pt-3.5 border-t border-[#f0ebe1] flex items-end justify-between gap-3 w-full">
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] uppercase font-semibold text-[#86958d] tracking-wider block leading-none mb-1">
+                          Property Value
+                        </span>
+                        <p className="font-heading text-base sm:text-lg lg:text-[19px] font-bold text-[#083327] whitespace-nowrap tracking-tight leading-none">
+                          {flat.price || "From ৳2.5 Cr"}
+                        </p>
+                      </div>
                       <button
                         type="button"
                         onClick={() => onSelectProject?.(flat)}
-                        className="group/btn inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-full text-xs font-semibold tracking-[0.12em] uppercase text-[#083327] border border-[#083327]/30 hover:bg-[#083327] hover:text-white transition-all duration-300 cursor-pointer"
+                        className="group/btn shrink-0 inline-flex items-center gap-1.5 py-2 px-3.5 sm:px-4 rounded-full text-[11px] sm:text-xs font-semibold tracking-[0.1em] uppercase text-[#083327] bg-[#f4f7f6] hover:bg-[#083327] hover:text-white border border-[#083327]/20 transition-all duration-300 shadow-2xs active:scale-95 cursor-pointer"
                       >
                         <span>View Progress</span>
                         <ChevronRightIcon className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
@@ -813,11 +817,11 @@ export function OverviewTab({
 
         {/* Skeleton Loading for Ongoing Projects */}
         {isLoadingProjects ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-[12px] w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
             {[1, 2, 3, 4].map((n) => (
               <div
                 key={`ongoing-proj-skeleton-${n}`}
-                className="bg-white rounded-[16px] pt-[12px] px-[12px] pb-[16px] flex flex-col gap-[12px]"
+                className="bg-white rounded-[18px] border border-[#e8ecea] pt-[12px] px-[12px] pb-[16px] flex flex-col gap-[12px]"
               >
                 <div className="h-[142px] w-full rounded-[12px] bg-stone-200 animate-pulse" />
                 <div className="px-[4px] flex flex-col gap-[12px]">
@@ -844,7 +848,7 @@ export function OverviewTab({
             variants={gridContainerVariants}
             initial="hidden"
             animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-[12px] w-full"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full"
           >
             {ongoingProjects.map((project, idx) => {
               const isFav = !!favorites[project.id];
@@ -854,7 +858,7 @@ export function OverviewTab({
                   key={`${project.id}-${idx}`}
                   variants={cardItemVariants}
                   whileHover={{ y: -4, transition: { duration: 0.22 } }}
-                  className="bg-white flex flex-col gap-[12px] items-start pb-[16px] pt-[12px] px-[12px] relative rounded-[16px] h-full group transition-shadow hover:shadow-[0_12px_32px_rgba(5,75,60,0.08)]"
+                  className="bg-white flex flex-col gap-[12px] items-start pb-[16px] pt-[12px] px-[12px] relative rounded-[18px] border border-[#e8ecea] shadow-[0_2px_12px_rgba(5,75,60,0.03)] hover:shadow-[0_12px_32px_rgba(5,75,60,0.08)] hover:border-[#054b3c]/25 h-full group transition-all duration-300"
                 >
                   {/* Project Image (8313:22488) */}
                   <div className="h-[142px] relative rounded-[12px] overflow-hidden shrink-0 w-full bg-stone-100">
@@ -869,8 +873,8 @@ export function OverviewTab({
 
                   {/* Top-Left Status Badge (8313:22511) */}
                   {project.status && (
-                    <div className="absolute bg-[#f9f0e2] border border-[#f5e5cc] flex items-center justify-center left-[20px] top-[20px] px-[8px] py-[5px] rounded-full z-10">
-                      <span className="text-[12px] font-normal leading-[14px] text-[#8a621e] whitespace-nowrap">
+                    <div className="absolute bg-[#f9f0e2]/95 backdrop-blur-xs border border-[#f5e5cc] flex items-center justify-center left-[20px] top-[20px] px-[9px] py-[4px] rounded-full z-10 shadow-xs">
+                      <span className="text-[11px] font-medium leading-[14px] text-[#8a621e] whitespace-nowrap">
                         {project.status}
                       </span>
                     </div>
@@ -882,12 +886,12 @@ export function OverviewTab({
                     whileTap={{ scale: 0.85 }}
                     onClick={() => toggleFavorite(project.id)}
                     aria-label="Add to favorites"
-                    className="absolute bg-white flex items-center justify-center p-[8px] right-[20px] top-[20px] rounded-full z-10 w-[32px] h-[32px] transition-transform hover:scale-105 shadow-xs cursor-pointer"
+                    className="absolute bg-white/95 backdrop-blur-xs flex items-center justify-center p-[7px] right-[20px] top-[20px] rounded-full z-10 w-[30px] h-[30px] transition-transform hover:scale-110 shadow-xs cursor-pointer"
                   >
                     <FavouriteHeartIcon
                       filled={isFav}
                       className={cn(
-                        "w-[16px] h-[16px] transition-colors",
+                        "w-[15px] h-[15px] transition-colors",
                         isFav ? "text-[#f04438]" : "text-[#232f43]"
                       )}
                     />
@@ -896,13 +900,13 @@ export function OverviewTab({
                   {/* Project Info Container (8313:22491) */}
                   <div className="flex flex-col gap-[12px] items-start justify-between px-[4px] w-full flex-1">
                     {/* Title + Location (8313:22492) */}
-                    <div className="flex flex-col gap-[5px] items-start w-full">
-                      <h3 className="text-[16px] font-medium leading-[20px] text-[#232f43] w-full truncate">
+                    <div className="flex flex-col gap-[4px] items-start w-full">
+                      <h3 className="text-[15px] font-semibold leading-[20px] text-[#232f43] w-full truncate group-hover:text-[#054b3c] transition-colors">
                         {project.name}
                       </h3>
                       <div className="flex gap-[4px] items-center w-full">
-                        <LocationPinIcon className="w-[18px] h-[18px] text-[#59657b] shrink-0" />
-                        <p className="text-[14px] font-normal leading-[18px] text-[#59657b] truncate">
+                        <LocationPinIcon className="w-[15px] h-[15px] text-[#cfa564] shrink-0" />
+                        <p className="text-[13px] font-normal leading-[16px] text-[#59657b] truncate">
                           {project.location}
                         </p>
                       </div>
@@ -914,18 +918,18 @@ export function OverviewTab({
                     {/* Construction & Handover Row (8313:22498) */}
                     <div className="flex items-center justify-between leading-[18px] w-full">
                       <div className="flex flex-col gap-[2px] items-start">
-                        <span className="text-[12px] font-normal text-[#59657b]">
+                        <span className="text-[11px] font-normal text-[#86958d]">
                           Construction
                         </span>
-                        <span className="text-[14px] font-medium text-[#232f43]">
+                        <span className="text-[13px] font-semibold text-[#083327]">
                           {project.constructionPct ?? 72}% complete
                         </span>
                       </div>
                       <div className="flex flex-col gap-[2px] items-start">
-                        <span className="text-[12px] font-normal text-[#59657b]">
+                        <span className="text-[11px] font-normal text-[#86958d]">
                           Handover
                         </span>
-                        <span className="text-[14px] font-medium text-[#232f43]">
+                        <span className="text-[13px] font-semibold text-[#083327]">
                           {project.handoverDate || "Dec 2027"}
                         </span>
                       </div>
@@ -934,17 +938,22 @@ export function OverviewTab({
                     {/* Divider Line 2 (8313:22505) */}
                     <div className="bg-[#f1f2f6] h-px w-full" />
 
-                    {/* Price & View Project Row (8313:22506) */}
-                    <div className="flex items-center justify-between gap-2 w-full">
-                      <p className="text-[16px] font-semibold leading-[20px] text-[#232f43] truncate min-w-0">
-                        {project.price}
-                      </p>
+                    {/* Price & View Project Row - No Truncation, Clean Alignment */}
+                    <div className="flex items-end justify-between gap-2.5 w-full pt-0.5">
+                      <div className="min-w-0 flex-1">
+                        <span className="text-[10px] uppercase font-semibold text-[#86958d] tracking-wider block leading-none mb-1">
+                          Starting Price
+                        </span>
+                        <p className="text-sm sm:text-[15px] font-bold text-[#083327] whitespace-nowrap tracking-tight leading-none">
+                          {project.price}
+                        </p>
+                      </div>
                       <Link
                         href={`/projects/${project.slug}`}
-                        className="group/link inline-flex items-center gap-[4px] shrink-0 whitespace-nowrap text-[14px] font-medium leading-[20px] text-[#044133] hover:text-[#054b3c] transition-colors cursor-pointer"
+                        className="group/link shrink-0 inline-flex items-center gap-1 text-[11px] font-semibold tracking-wider uppercase text-[#054b3c] hover:text-white bg-[#f4f7f6] hover:bg-[#054b3c] px-3 py-1.5 rounded-full border border-[#054b3c]/20 transition-all duration-200"
                       >
                         <span>View Project</span>
-                        <ChevronRightIcon className="w-[16px] h-[16px] text-[#044133] transition-transform duration-300 group-hover/link:translate-x-1" />
+                        <ChevronRightIcon className="w-3 h-3 transition-transform duration-300 group-hover/link:translate-x-0.5" />
                       </Link>
                     </div>
                   </div>

@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChatWidget } from "@/components/chat_widget";
 import { Appear } from "@/components/ui/motion";
-import { PatternStrip } from "@/components/ui/primitives";
 import { RollingText } from "@/components/ui/rolling_text";
 import { CONTACT, FOOTER_COLUMNS, LEGAL_LINKS, SOCIALS } from "@/lib/site";
 import { SETTLE } from "@/lib/utils";
@@ -151,10 +150,8 @@ export function Footer({ reveal = false }: FooterProps = {}) {
       <div ref={endRef} aria-hidden className="h-0" />
       <footer
         ref={footRef}
-        className={`${reveal && fits ? "sticky bottom-0" : "relative"} z-0 flex flex-col gap-16 bg-green-deep pb-10 md:gap-[100px] ${near ? "" : "invisible"}`}
+        className={`${reveal && fits ? "sticky bottom-0" : "relative"} z-0 flex flex-col gap-16 bg-green-deep pt-16 pb-10 md:pt-24 md:gap-[100px] ${near ? "" : "invisible"}`}
       >
-        <PatternStrip tone="dark" />
-
         <div className="shell flex flex-col gap-8">
           <div className="flex flex-col gap-14 xl:flex-row xl:items-start xl:justify-between">
             <Appear

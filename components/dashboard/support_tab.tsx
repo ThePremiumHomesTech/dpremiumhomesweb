@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Sparkles, Phone } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 
 const containerVariants = {
   hidden: { opacity: 0 },

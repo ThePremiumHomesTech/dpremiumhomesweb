@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE } from "@/lib/api";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Heart,
   ChevronRight,
@@ -186,10 +187,7 @@ export function WishlistTab({ user }: WishlistTabProps) {
     if (catalogProjects.length > 0) return;
     try {
       setIsLoadingCatalog(true);
-      const baseUrl = (
-        process.env.NEXT_PUBLIC_API_BASE_URL ||
-        "https://api.dpremiumhomes.com/api"
-      ).replace(/\/+$/, "");
+      const baseUrl = API_BASE;
 
       const res = await fetch(`${baseUrl}/projects`, {
         method: "GET",

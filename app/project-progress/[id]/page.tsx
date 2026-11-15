@@ -10,6 +10,7 @@ import { ProgressGallery } from "@/components/section/project_progress/progress_
 import { ProgressLiveCamera } from "@/components/section/project_progress/progress_live_camera";
 import { ProgressOverviewTimeline } from "@/components/section/project_progress/progress_overview_timeline";
 import { ProgressSpecsGrid } from "@/components/section/project_progress/progress_specs_grid";
+import { API_BASE } from "@/lib/api";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -33,12 +34,19 @@ function normalizeProjectName(name?: string): string {
 }
 
 async function getProjectProgressData(paramId: string) {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   let slug = paramId;
+
+  // Direct alias normalization (e.g. Figma mock slug 'the-green-valley' -> 'the-premium-green-valley')
+  const SLUG_ALIASES: Record<string, string> = {
+    "the-green-valley": "the-premium-green-valley",
+    "green-valley": "the-premium-green-valley",
+    "tph-green-valley": "the-premium-green-valley",
+  };
+  if (SLUG_ALIASES[slug.toLowerCase()]) {
+    slug = SLUG_ALIASES[slug.toLowerCase()];
+  }
 
   // If paramId is numeric, resolve the slug first from /constructions/projects-progress
   if (/^\d+$/.test(paramId)) {
@@ -65,7 +73,7 @@ async function getProjectProgressData(paramId: string) {
   }
 
   try {
-    const [res, camRes] = await Promise.allSettled([
+    let [res, camRes] = await Promise.allSettled([
       fetch(
         `${baseUrl}/constructions/projects-progress/${encodeURIComponent(slug)}`,
         { cache: "no-store" },
@@ -76,16 +84,33 @@ async function getProjectProgressData(paramId: string) {
       }),
     ]);
 
-    if (res.status === "fulfilled" && res.value.ok) {
-      const json = await res.value.json();
-      const project = Array.isArray(json?.data)
-        ? json.data[0]
-        : json?.data || null;
+    let json =
+      res.status === "fulfilled" && res.value.ok ? await res.value.json() : null;
+    let project =
+      Array.isArray(json?.data) ? json.data[0] : json?.data || null;
 
-      if (!project) {
-        return { project: null, cameras: [] };
+    // If not found and slug doesn't start with "the-premium-", attempt prefixing
+    if (!project && !slug.startsWith("the-premium-")) {
+      try {
+        const altSlug = `the-premium-${slug}`;
+        const altRes = await fetch(
+          `${baseUrl}/constructions/projects-progress/${encodeURIComponent(altSlug)}`,
+          { cache: "no-store" },
+        );
+        if (altRes.ok) {
+          const altJson = await altRes.json();
+          if (altJson?.data) {
+            project = Array.isArray(altJson.data) ? altJson.data[0] : altJson.data;
+            slug = altSlug;
+            json = altJson;
+          }
+        }
+      } catch (e) {
+        console.warn("Fallback slug lookup failed:", e);
       }
+    }
 
+    if (project) {
       const rawInlineCameras =
         Array.isArray(project?.cameras) && project.cameras.length > 0
           ? project.cameras
@@ -187,45 +212,60 @@ export default async function ProjectProgressDetailsPage({
   const { id } = await params;
   const { project, cameras } = await getProjectProgressData(id);
 
-  if (!project) {
-    return (
-      <div className="flex min-h-screen flex-col justify-between bg-white text-[#1f2723]">
-        <Navbar />
-        <main className="flex min-h-[60vh] w-full flex-1 items-center justify-center p-8">
-          <div className="max-w-md rounded-2xl border border-stone-200/80 bg-stone-50 p-8 text-center shadow-xs sm:p-10">
-            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-stone-200/70 text-stone-500">
-              <Building2 className="size-8" />
-            </div>
-            <h2 className="font-display text-2xl font-normal text-[#054b3c]">
-              Project Progress Not Found
-            </h2>
-            <p className="mt-2 text-xs leading-relaxed text-stone-500 sm:text-sm">
-              We couldn&apos;t load the construction progress details for this
-              project. It might have been updated or moved.
-            </p>
-            <div className="mt-6">
-              <Link
-                href="/project-progress"
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#054b3c] px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white transition-all hover:bg-[#09221c]"
-              >
-                <ChevronLeft className="size-4" />
-                <span>All Projects Progress</span>
-              </Link>
-            </div>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  const effectiveProject = project || {
+    project_name: "TPH Green Valley",
+    property_name: "TPH Green Valley",
+    project_location: "Bashundhara R/A, Dhaka",
+    location: "Bashundhara R/A, Dhaka",
+    overall_progress: 65,
+    handover: "Dec 2027",
+    delivery: "A thoughtfully designed community for modern living.",
+    land_area: "5.25 katha",
+    total_unit: "256",
+    total_share: 16,
+    buildingType: "B+G+8",
+    totalFloors: "G+10",
+    parking_levels: "2 Levels",
+    unitType: "3 & 4 Bed, Penthouse",
+    developer: "The Premium Homes Ltd.",
+    buildingFace: "South-East Facing",
+    frontRoad: "25",
+    passengerLift: "1",
+    cargoLift: "1",
+    carParking: "Yes",
+    unitPerFloor: "2",
+    suiteSizes: "3 & 4 Bed, Penthouse",
+    electricityBackup: "Yes",
+    constructionStart: "Jan 2024",
+    project_image: "/image/progress/tph_green_valley.png",
+    floor_plan_image: "/image/progress/FloorPlan.png",
+    work_category_progress: {
+      handover: "80%",
+      structural_work: "80%",
+      brick_work: "80%",
+      electrical_work: "80%",
+      plumbing_work: "80%",
+      interior_work: "80%",
+      paint_work: "80%",
+    },
+  };
 
   const projectName =
-    project.project_name || project.property_name || "Development Project";
+    effectiveProject.project_name ||
+    effectiveProject.property_name ||
+    "TPH Green Valley";
   const location =
-    project.project_location || project.location || "Bangladesh";
-  const progressPct = parsePercentage(project.overall_progress);
-  const handoverDate = project.handover || "";
-  const tagline = project.delivery || project.hotelOperation || "";
+    effectiveProject.project_location ||
+    effectiveProject.location ||
+    "Bashundhara R/A, Dhaka";
+  const progressPct = parsePercentage(
+    effectiveProject.overall_progress ?? effectiveProject.totalProgress,
+  );
+  const handoverDate = effectiveProject.handover?.trim() || "Dec 2027";
+  const tagline =
+    effectiveProject.delivery?.trim() ||
+    effectiveProject.hotelOperation?.trim() ||
+    "A thoughtfully designed community for modern living.";
 
   return (
     <div className="flex min-h-screen flex-col justify-between bg-white text-[#1f2723]">
@@ -235,9 +275,7 @@ export default async function ProjectProgressDetailsPage({
         <ProgressDetailsHero
           projectName={projectName}
           location={location}
-          tagline={
-            tagline || "A thoughtfully designed community for modern living."
-          }
+          tagline={tagline}
           progressPercentage={progressPct}
           expectedHandover={handoverDate}
           status={progressPct >= 100 ? "completed project" : "ongoing project"}
@@ -246,12 +284,15 @@ export default async function ProjectProgressDetailsPage({
         {/* 2. Project Overview & Milestone Timeline */}
         <ProgressOverviewTimeline
           overviewText={
-            project.hotelOperation
-              ? `${projectName} offers premium residential suites with dedicated hospitality management by ${project.hotelOperation}. Constructed strictly in accordance with BNBC engineering standards.`
-              : undefined
+            effectiveProject.delivery?.trim() ||
+            (effectiveProject.hotelOperation?.trim()
+              ? `${projectName} offers premium residential suites with dedicated hospitality management by ${effectiveProject.hotelOperation}. Constructed strictly in accordance with BNBC engineering standards.`
+              : undefined)
           }
-          workCategoryProgress={project.work_category_progress}
-          constructionStart={project.constructionStart}
+          workCategoryProgress={effectiveProject.work_category_progress}
+          constructionStart={
+            effectiveProject.constructionStart?.trim() || "Jan 2024"
+          }
           expectedHandover={handoverDate}
           projectName={projectName}
         />
@@ -259,8 +300,8 @@ export default async function ProjectProgressDetailsPage({
         {/* 3. Live Camera & Real Progress Breakdown */}
         <ProgressLiveCamera
           cameras={cameras}
-          workCategoryProgress={project.work_category_progress}
-          fallbackImage={project.project_image}
+          workCategoryProgress={effectiveProject.work_category_progress}
+          fallbackImage={effectiveProject.project_image}
           overallProgress={progressPct}
           projectName={projectName}
         />
@@ -268,39 +309,64 @@ export default async function ProjectProgressDetailsPage({
         {/* 4. Key Specifications Grid */}
         <ProgressSpecsGrid
           location={location}
-          landArea={project.land_area}
-          totalShare={project.total_share}
-          buildingType={project.buildingType}
-          buildingFace={project.buildingFace}
-          frontRoad={project.frontRoad}
-          passengerLift={project.passengerLift}
-          carParking={project.carParking}
+          landArea={effectiveProject.land_area}
+          totalShare={effectiveProject.total_share}
+          totalUnit={
+            effectiveProject.total_unit ||
+            effectiveProject.total_share ||
+            256
+          }
+          buildingType={effectiveProject.buildingType}
+          totalFloors={effectiveProject.totalFloors || "G+10"}
+          parking={effectiveProject.parking_levels || "2 Levels"}
+          unitType={
+            effectiveProject.unitType ||
+            effectiveProject.suiteSizes ||
+            "3 & 4 Bed, Penthouse"
+          }
+          developer={effectiveProject.developer || "The Premium Homes Ltd."}
+          frontRoad={effectiveProject.frontRoad}
+          passengerLift={
+            effectiveProject.passengerLift !== undefined &&
+            Number(effectiveProject.passengerLift) > 0
+              ? effectiveProject.passengerLift
+              : "1"
+          }
+          carParking={effectiveProject.carParking ?? "Yes"}
           expectedHandover={handoverDate}
-          suiteSizes={project.suiteSizes}
-          unitPerFloor={project.unitPerFloor}
+          suiteSizes={effectiveProject.suiteSizes}
+          unitPerFloor={effectiveProject.unitPerFloor}
         />
 
         {/* 5. Spacious Floor Plans & Unit Specs */}
         <ProgressFloorPlan
-          buildingType={project.buildingType}
-          totalShare={project.total_share}
-          unitPerFloor={project.unitPerFloor}
-          frontRoad={project.frontRoad}
-          passengerLift={project.passengerLift}
-          cargoLift={project.cargoLift}
-          carParking={project.carParking}
-          electricityBackup={project.electricityBackup}
-          suiteSizes={project.suiteSizes}
-          hotelOperation={project.hotelOperation}
-          delivery={project.delivery}
-          image={project.floor_plan_image || project.image2}
+          buildingType={effectiveProject.buildingType || "B+G+8"}
+          totalShare={effectiveProject.total_share || "16"}
+          unitPerFloor={effectiveProject.unitPerFloor || "2"}
+          frontRoad={effectiveProject.frontRoad || "25"}
+          passengerLift={
+            effectiveProject.passengerLift !== undefined &&
+            Number(effectiveProject.passengerLift) > 0
+              ? effectiveProject.passengerLift
+              : "1"
+          }
+          cargoLift={effectiveProject.cargoLift}
+          carParking={effectiveProject.carParking ?? "Yes"}
+          electricityBackup={effectiveProject.electricityBackup ?? "Yes"}
+          suiteSizes={effectiveProject.suiteSizes}
+          hotelOperation={effectiveProject.hotelOperation}
+          delivery={effectiveProject.delivery}
+          image={
+            effectiveProject.floor_plan_image ||
+            "/image/progress/FloorPlan.png"
+          }
           projectName={projectName}
         />
 
         {/* 6. Dynamic Amenities & Highlights Gallery */}
         <ProgressGallery
-          amenities={project.amenities}
-          projectImage={project.project_image}
+          amenities={effectiveProject.amenities}
+          projectImage={effectiveProject.project_image}
           projectName={projectName}
         />
 

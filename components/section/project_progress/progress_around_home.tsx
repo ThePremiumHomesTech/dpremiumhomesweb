@@ -88,7 +88,7 @@ function SchoolCompositeIcon({ active }: { active: boolean }) {
   return (
     <div
       className={cn(
-        "relative size-[40px] shrink-0 overflow-clip sm:size-[48px]",
+        "relative size-[32px] shrink-0 overflow-clip sm:size-[40px] lg:size-[48px]",
         !active && "brightness-0 opacity-80",
       )}
     >
@@ -269,7 +269,7 @@ export function ProgressAroundHome({
                     onClick={() => setActiveCategory(cat.id)}
                     aria-pressed={isActive}
                     className={cn(
-                      "flex min-h-[96px] w-full cursor-pointer flex-col items-start justify-center gap-2 border p-3 text-left transition-colors duration-300 sm:h-[112px] sm:flex-row sm:items-center sm:gap-[18px] sm:p-[32px]",
+                      "flex min-h-[88px] w-full cursor-pointer flex-col items-center justify-center gap-2 border p-3 text-center transition-colors duration-300 sm:h-[112px] sm:flex-row sm:items-center sm:justify-start sm:gap-[18px] sm:p-[24px] sm:text-left lg:p-[32px]",
                       isActive
                         ? "border-[#054b3c] bg-[#054b3c] text-white"
                         : "border-[#e6e6e6] bg-white text-[#3b3e40] hover:border-[#054b3c]/50",
@@ -285,7 +285,7 @@ export function ProgressAroundHome({
                         width={48}
                         height={48}
                         className={cn(
-                          "size-[40px] shrink-0 sm:size-[48px]",
+                          "size-[32px] shrink-0 sm:size-[40px] lg:size-[48px]",
                           isActive && "brightness-0 invert",
                         )}
                       />
@@ -296,7 +296,7 @@ export function ProgressAroundHome({
                         "trim min-w-0 break-words font-display font-medium capitalize sm:whitespace-nowrap",
                         isActive ? "text-white" : "text-[#3b3e40]",
                       )}
-                      style={{ fontSize: fluid(28, 18), lineHeight: 1.2 }}
+                      style={{ fontSize: fluid(28, 15), lineHeight: 1.2 }}
                     >
                       {cat.label}
                     </span>

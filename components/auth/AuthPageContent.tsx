@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { motion, AnimatePresence } from "framer-motion";
+import { API_BASE } from "@/lib/api";
+import { motion, AnimatePresence } from "motion/react";
 import {
   Eye,
   EyeOff,
@@ -148,13 +149,7 @@ export default function AuthPageContent({
   const [apiError, setApiError] = useState<string | null>(null);
   const [apiSuccess, setApiSuccess] = useState<string | null>(null);
 
-  const getBaseUrl = () => {
-    return (
-      process.env.NEXT_PUBLIC_API_BASE_URL ||
-      process.env.API_BASE_URL ||
-      "https://api.dpremiumhomes.com/api"
-    ).replace(/\/+$/, "");
-  };
+  const getBaseUrl = () => API_BASE;
 
   // Load real projects from API for the right side showcase
   useEffect(() => {
@@ -344,9 +339,17 @@ export default function AuthPageContent({
       const data = await response.json().catch(() => null);
 
       if (!response.ok || (data && data.success === false)) {
-        const errorMsg =
-          data?.message ||
-          "Invalid email or password. Please verify your details.";
+        let errorMsg = "Invalid email or password. Please verify your details.";
+        if (data?.errors && typeof data.errors === "object") {
+          const detailedList = Object.values(data.errors).flat().filter(Boolean);
+          if (detailedList.length > 0) {
+            errorMsg = detailedList.join(" ");
+          } else if (data?.message) {
+            errorMsg = data.message;
+          }
+        } else if (data?.message) {
+          errorMsg = data.message;
+        }
         setApiError(errorMsg);
         return;
       }
@@ -355,16 +358,16 @@ export default function AuthPageContent({
         data?.message || "Login successful! Redirecting to dashboard...",
       );
 
-      try {
-        const token = data?.token || data?.access_token || data?.data?.token || "";
-        const user = data?.user || data?.data?.user || null;
-        const userId =
-          user?.id ||
-          data?.user_id ||
-          data?.id ||
-          data?.data?.id ||
-          "";
+      const token = data?.token || data?.access_token || data?.data?.token || "";
+      const user = data?.user || data?.data?.user || null;
+      const userId =
+        user?.id ||
+        data?.user_id ||
+        data?.id ||
+        data?.data?.id ||
+        "";
 
+      try {
         if (token) {
           localStorage.setItem("tphl_auth_token", token);
           localStorage.setItem("token", token);
@@ -385,7 +388,17 @@ export default function AuthPageContent({
       }
 
       setIsRedirecting(true);
-      router.push("/dashboard");
+      const userFlats =
+        user?.savedProperties ||
+        user?.bookings ||
+        data?.data?.savedProperties ||
+        data?.data?.bookings ||
+        [];
+      if (Array.isArray(userFlats) && userFlats.length > 0) {
+        router.push("/dashboard");
+      } else {
+        router.push("/guest/dashboard");
+      }
     } catch (err: any) {
       setApiError(
         err?.message ||
@@ -424,11 +437,17 @@ export default function AuthPageContent({
       const data = await response.json().catch(() => null);
 
       if (!response.ok || (data && data.success === false)) {
-        const errorMsg =
-          data?.message ||
-          (data?.errors
-            ? Object.values(data.errors).flat().join(" ")
-            : "Registration failed. Please check your information.");
+        let errorMsg = "Registration failed. Please check your information.";
+        if (data?.errors && typeof data.errors === "object") {
+          const detailedList = Object.values(data.errors).flat().filter(Boolean);
+          if (detailedList.length > 0) {
+            errorMsg = detailedList.join(" ");
+          } else if (data?.message) {
+            errorMsg = data.message;
+          }
+        } else if (data?.message) {
+          errorMsg = data.message;
+        }
         setApiError(errorMsg);
         return;
       }
@@ -549,11 +568,11 @@ export default function AuthPageContent({
       setOtpSuccess(data?.message || "Email verified successfully!");
 
       // Save user & token to localStorage
-      try {
-        const token = data?.data?.token || data?.token || "";
-        const user = data?.data?.user || data?.user || null;
-        const userId = user?.id || "";
+      const token = data?.data?.token || data?.token || "";
+      const user = data?.data?.user || data?.user || null;
+      const userId = user?.id || "";
 
+      try {
         if (token) {
           localStorage.setItem("tphl_auth_token", token);
           localStorage.setItem("token", token);
@@ -576,7 +595,17 @@ export default function AuthPageContent({
       // Smooth redirect to dashboard with preloader
       setOtpModalOpen(false);
       setIsRedirecting(true);
-      router.push("/dashboard");
+      const userFlats =
+        user?.savedProperties ||
+        user?.bookings ||
+        data?.data?.savedProperties ||
+        data?.data?.bookings ||
+        [];
+      if (Array.isArray(userFlats) && userFlats.length > 0) {
+        router.push("/dashboard");
+      } else {
+        router.push("/guest/dashboard");
+      }
     } catch (err: any) {
       setOtpError(
         err?.message ||

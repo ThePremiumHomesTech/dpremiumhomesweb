@@ -9,6 +9,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE } from "@/lib/api";
 
 export interface AdminUser {
   id: number | string;
@@ -36,13 +37,6 @@ interface AdminAuthContextType {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(
   undefined
 );
-
-const getApiBaseUrl = () => {
-  return (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
-};
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -83,8 +77,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       setToken(storedToken);
 
       try {
-        const baseUrl = getApiBaseUrl();
-        const response = await fetch(`${baseUrl}/admin/user`, {
+        const response = await fetch(`${API_BASE}/admin/user`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${storedToken}`,
@@ -139,8 +132,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     password: string
   ): Promise<LoginResult> => {
     try {
-      const baseUrl = getApiBaseUrl();
-      const response = await fetch(`${baseUrl}/admin/login`, {
+      const response = await fetch(`${API_BASE}/admin/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

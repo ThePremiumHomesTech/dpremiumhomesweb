@@ -14,7 +14,7 @@ import {
   Clock,
   Check,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ClientPayment, ClientUser, ClientFlat } from "./types";
 import { parseAmount, formatTaka } from "@/lib/client-dashboard";
 

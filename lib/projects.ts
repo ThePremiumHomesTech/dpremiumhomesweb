@@ -1,3 +1,5 @@
+import { API_BASE } from "./api";
+
 export interface ProjectData {
   id: number;
   name: string;
@@ -122,20 +124,8 @@ export function normalizeProject(
  * Used across server components with ISR caching.
  */
 export async function getProjects(): Promise<ProjectData[]> {
-  const baseUrl =
-    process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-
-  if (!baseUrl) {
-    console.error(
-      "[getProjects] Environment variable API_BASE_URL or NEXT_PUBLIC_API_BASE_URL is missing.",
-    );
-    return [];
-  }
-
-  const cleanBase = baseUrl.replace(/\/+$/, "");
-
   try {
-    const res = await fetch(`${cleanBase}/projects`, {
+    const res = await fetch(`${API_BASE}/projects`, {
       next: { revalidate: 3600 },
     });
 
@@ -334,23 +324,11 @@ export async function getProjectBySlug(
     return null;
   }
 
-  const baseUrl =
-    process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-
-  if (!baseUrl) {
-    console.error(
-      "[getProjectBySlug] Error: Neither API_BASE_URL nor NEXT_PUBLIC_API_BASE_URL is defined in .env",
-    );
-    return null;
-  }
-
-  const cleanBase = baseUrl.replace(/\/+$/, "");
-
   try {
     // The detail endpoint returns the unit-type count as `total_share`; the
     // list endpoint carries the real share count, so it is fetched alongside.
     const [res, listedProjects] = await Promise.all([
-      fetch(`${cleanBase}/projects/${encodeURIComponent(cleanSlug)}`, {
+      fetch(`${API_BASE}/projects/${encodeURIComponent(cleanSlug)}`, {
         next: { revalidate: 3600 },
       }),
       getProjects(),
@@ -394,21 +372,9 @@ export async function getProjectById(
     return null;
   }
 
-  const baseUrl =
-    process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
-
-  if (!baseUrl) {
-    console.error(
-      "[getProjectById] Error: Neither API_BASE_URL nor NEXT_PUBLIC_API_BASE_URL is defined in .env",
-    );
-    return null;
-  }
-
-  const cleanBase = baseUrl.replace(/\/+$/, "");
-
   try {
     const res = await fetch(
-      `${cleanBase}/projects/get-property-by-id/?id=${numericId}`,
+      `${API_BASE}/projects/get-property-by-id/?id=${numericId}`,
       {
         next: { revalidate: 3600 },
       },

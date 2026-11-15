@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { DashboardSidebar, DashboardTab } from "@/components/dashboard/dashboard_sidebar";
 import { DashboardHeader } from "@/components/dashboard/dashboard_header";
 import { OverviewTab } from "@/components/dashboard/overview_tab";

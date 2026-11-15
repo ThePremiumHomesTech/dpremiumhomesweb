@@ -187,15 +187,15 @@ export function ProgressFloorPlan({
           {/* Left Column: Blueprint Image Box (716 × 824, bg #F5F5F5) */}
           <Shutter
             tone="bg-[#f5f5f5]"
-            className="relative min-h-[380px] bg-[#f5f5f5] sm:min-h-[480px] lg:min-h-[824px]"
+            className="relative min-h-[280px] bg-[#f5f5f5] sm:min-h-[440px] lg:min-h-[824px]"
           >
-            <div className="zoom-frame relative size-full p-6 sm:p-10">
+            <div className="zoom-frame relative size-full p-4 sm:p-8 lg:p-10">
               <Image
                 src={resolvedImage}
                 alt={`${projectName} Spacious Floor Plans`}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-contain p-4"
+                className="object-contain p-2 sm:p-4"
               />
             </div>
           </Shutter>
@@ -208,19 +208,19 @@ export function ProgressFloorPlan({
                 preset="lift"
                 delay={0.08 + idx * 0.05}
                 className={cn(
-                  "flex min-h-[88px] flex-1 items-center justify-between gap-[24px] border-b border-[#e0d1b6] px-6 py-5 last:border-b-0 sm:min-h-[117.7px] sm:px-[48px] sm:py-[40px]",
+                  "flex min-h-[60px] flex-1 items-center justify-between gap-[16px] border-b border-[#e0d1b6] px-4 py-3.5 last:border-b-0 sm:min-h-[88px] sm:px-8 sm:py-6 lg:min-h-[117.7px] lg:px-[48px] lg:py-[40px]",
                   idx % 2 === 1 ? "bg-white" : "bg-transparent",
                 )}
               >
                 <span
                   className="trim font-display font-medium capitalize text-[#054b3c]"
-                  style={{ fontSize: fluid(32, 22), lineHeight: 1.1 }}
+                  style={{ fontSize: fluid(32, 17), lineHeight: 1.2 }}
                 >
                   {spec.label}
                 </span>
                 <span
                   className="trim text-right font-display font-medium capitalize text-[#054b3c]"
-                  style={{ fontSize: fluid(28, 20), lineHeight: 1.1 }}
+                  style={{ fontSize: fluid(28, 16), lineHeight: 1.2 }}
                 >
                   {spec.value}
                 </span>

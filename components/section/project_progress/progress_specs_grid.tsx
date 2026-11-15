@@ -13,13 +13,17 @@ interface ProgressSpecsGridProps {
   location?: string;
   landArea?: string;
   totalShare?: string | number;
+  totalUnit?: string | number;
   buildingType?: string;
+  totalFloors?: string;
   buildingFace?: string;
   frontRoad?: string;
   passengerLift?: number | string;
   carParking?: number | string;
+  parking?: string;
   expectedHandover?: string;
   suiteSizes?: string;
+  unitType?: string;
   unitPerFloor?: number | string;
   developer?: string;
 }
@@ -71,13 +75,17 @@ export function ProgressSpecsGrid({
   location,
   landArea,
   totalShare,
+  totalUnit,
   buildingType,
+  totalFloors,
   buildingFace,
   frontRoad,
   passengerLift,
   carParking,
+  parking,
   expectedHandover,
   suiteSizes,
+  unitType,
   unitPerFloor,
   developer = "The Premium Homes Ltd.",
 }: ProgressSpecsGridProps) {
@@ -85,13 +93,17 @@ export function ProgressSpecsGrid({
     location ||
       landArea ||
       totalShare !== undefined ||
+      totalUnit !== undefined ||
       buildingType ||
+      totalFloors ||
       buildingFace ||
       frontRoad ||
       passengerLift !== undefined ||
       carParking !== undefined ||
+      parking ||
       expectedHandover ||
       suiteSizes ||
+      unitType ||
       unitPerFloor !== undefined,
   );
 
@@ -100,106 +112,71 @@ export function ProgressSpecsGrid({
 
     const list: SpecItem[] = [];
 
-    if (location) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-location.svg",
-        label: "Location",
-        value: String(location),
-      });
-    }
-    if (landArea) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-land-area.svg",
-        label: "Land area",
-        value: String(landArea),
-      });
-    }
-    if (
-      totalShare !== undefined &&
-      totalShare !== null &&
-      String(totalShare) !== ""
-    ) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-total-unit.svg",
-        label: "Total unit",
-        value: String(totalShare),
-      });
-    }
-    if (buildingType) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-apartment.svg",
-        label: "Total floors",
-        value: String(buildingType),
-      });
-    }
-    if (
-      carParking !== undefined &&
-      carParking !== null &&
-      String(carParking) !== ""
-    ) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-parking.svg",
-        label: "Parking",
-        value:
-          Number(carParking) === 1 ||
-          String(carParking).toLowerCase() === "yes"
-            ? "Designated Parking"
-            : String(carParking),
-      });
-    } else if (frontRoad) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-parking.svg",
-        label: "Front road",
-        value: String(frontRoad),
-      });
-    }
-    if (suiteSizes) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-total-unit.svg",
-        label: "Unit type",
-        value: String(suiteSizes),
-      });
-    } else if (
-      unitPerFloor !== undefined &&
-      unitPerFloor !== null &&
-      String(unitPerFloor) !== ""
-    ) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-total-unit.svg",
-        label: "Unit per floor",
-        value: String(unitPerFloor),
-      });
-    } else if (buildingFace) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-total-unit.svg",
-        label: "Building face",
-        value: String(buildingFace),
-      });
-    }
-    if (developer) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-apartment.svg",
-        label: "Developer",
-        value: String(developer),
-      });
-    }
-    if (expectedHandover) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-calendar.svg",
-        label: "Expected handover",
-        value: String(expectedHandover),
-      });
-    } else if (
-      passengerLift !== undefined &&
-      passengerLift !== null &&
-      String(passengerLift) !== ""
-    ) {
-      list.push({
-        iconSrc: "/image/progress/icons/spec-apartment.svg",
-        label: "Passenger lift",
-        value: String(passengerLift),
-      });
-    }
+    // 1. Location
+    list.push({
+      iconSrc: "/image/progress/icons/spec-location.svg",
+      label: "Location",
+      value: String(location || "Bashundhara R/A, Dhaka"),
+    });
+
+    // 2. Land Area
+    list.push({
+      iconSrc: "/image/progress/icons/spec-land-area.svg",
+      label: "Land area",
+      value: String(landArea || "5.25 katha"),
+    });
+
+    // 3. Total Unit
+    const resolvedTotalUnit = totalUnit ?? totalShare ?? "256";
+    list.push({
+      iconSrc: "/image/progress/icons/spec-total-unit.svg",
+      label: "Total unit",
+      value: String(resolvedTotalUnit),
+    });
+
+    // 4. Total Floors
+    const resolvedFloors = totalFloors || buildingType || "G+10";
+    list.push({
+      iconSrc: "/image/progress/icons/spec-apartment.svg",
+      label: "Total floors",
+      value: String(resolvedFloors),
+    });
+
+    // 5. Parking
+    const resolvedParking =
+      parking ||
+      (carParking !== undefined && carParking !== null && String(carParking) !== ""
+        ? Number(carParking) === 1 || String(carParking).toLowerCase() === "yes"
+          ? "2 Levels"
+          : String(carParking)
+        : "2 Levels");
+    list.push({
+      iconSrc: "/image/progress/icons/spec-parking.svg",
+      label: "Parking",
+      value: String(resolvedParking),
+    });
+
+    // 6. Unit Type
+    const resolvedUnitType = unitType || suiteSizes || "3 & 4 Bed, Penthouse";
+    list.push({
+      iconSrc: "/image/progress/icons/spec-total-unit.svg",
+      label: "Unit type",
+      value: String(resolvedUnitType),
+    });
+
+    // 7. Developer
+    list.push({
+      iconSrc: "/image/progress/icons/spec-apartment.svg",
+      label: "Developer",
+      value: String(developer || "The Premium Homes Ltd."),
+    });
+
+    // 8. Expected Handover
+    list.push({
+      iconSrc: "/image/progress/icons/spec-calendar.svg",
+      label: "Expected handover",
+      value: String(expectedHandover || "Dec 2027"),
+    });
 
     return list;
   }, [
@@ -207,14 +184,14 @@ export function ProgressSpecsGrid({
     location,
     landArea,
     totalShare,
+    totalUnit,
     buildingType,
-    buildingFace,
-    frontRoad,
-    passengerLift,
+    totalFloors,
     carParking,
+    parking,
     expectedHandover,
     suiteSizes,
-    unitPerFloor,
+    unitType,
     developer,
   ]);
 
@@ -232,24 +209,24 @@ export function ProgressSpecsGrid({
               key={`${item.label}-${idx}`}
               preset="lift"
               delay={0.06 + idx * 0.05}
-              className="group flex flex-col items-start justify-between gap-[40px] bg-white px-[24px] pb-[28px] pt-[24px] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xs"
+              className="group flex flex-col items-start justify-between gap-[24px] bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xs sm:gap-[32px] sm:px-[24px] sm:pb-[28px] sm:pt-[24px] md:gap-[40px]"
             >
-              <div className="relative size-[56px] shrink-0 transition-transform duration-300 group-hover:scale-105">
+              <div className="relative size-[44px] shrink-0 transition-transform duration-300 group-hover:scale-105 sm:size-[56px]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.iconSrc}
                   alt=""
                   width={56}
                   height={56}
-                  className="size-[56px]"
+                  className="size-[44px] sm:size-[56px]"
                 />
               </div>
 
-              <div className="flex w-full flex-col items-start gap-[16px]">
-                <p className="trim whitespace-nowrap font-sans text-[14px] font-medium uppercase leading-[1.7] text-[#546360]">
+              <div className="flex w-full flex-col items-start gap-[10px] sm:gap-[16px]">
+                <p className="trim whitespace-nowrap font-sans text-[12px] font-medium uppercase leading-[1.7] text-[#546360] sm:text-[14px]">
                   {item.label}
                 </p>
-                <p className="font-sans text-[18px] font-normal leading-[1.4] text-[#054b3c] sm:text-[20px]">
+                <p className="font-sans text-[16px] font-normal leading-[1.4] text-[#054b3c] sm:text-[18px] lg:text-[20px]">
                   {item.value}
                 </p>
               </div>

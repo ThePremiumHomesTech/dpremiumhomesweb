@@ -12,7 +12,7 @@ import {
   X,
   Sparkles,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { ClientUser, ReferralDetails, ReferralTransaction } from "./types";
 import { fetchUserReferralDetails } from "@/lib/client-dashboard";
 

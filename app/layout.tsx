@@ -89,9 +89,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${vazirmatn.variable} ${seaweedScript.variable} ${kVictor.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col bg-[#ffffff] text-[#1f2723]">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-[#ffffff] text-[#1f2723]"
+      >
         {/* Always open at the top on reload: the intro and hero start the page. */}
         <script
           dangerouslySetInnerHTML={{

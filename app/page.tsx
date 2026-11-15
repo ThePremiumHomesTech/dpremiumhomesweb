@@ -13,9 +13,13 @@ import { MobileAppSection } from "@/components/section/home/mobile_app_section";
 import { LatestBlogs } from "@/components/section/home/latest_blogs";
 import { HomeCta } from "@/components/section/home/home_cta";
 import { getProjects } from "@/lib/projects";
+import { getBlogs } from "@/lib/blogs";
 
 export default async function Home() {
-  const projects = await getProjects();
+  const [projects, blogs] = await Promise.all([
+    getProjects(),
+    getBlogs(),
+  ]);
   const locations = Array.from(
     new Set(
       projects
@@ -46,7 +50,7 @@ export default async function Home() {
         <PhilosophyPillars />
         <HomeTestimonials />
         <MobileAppSection />
-        <LatestBlogs />
+        <LatestBlogs initialBlogs={blogs} />
         <HomeCta />
       </main>
       <Footer reveal />

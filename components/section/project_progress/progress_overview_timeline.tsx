@@ -43,7 +43,7 @@ const DEFAULT_MILESTONES: TimelineMilestone[] = [
     id: "foundation",
     title: "Foundation",
     status: "COMPLETED",
-    date: "Jan 2025",
+    date: "Jan 2024",
   },
   {
     id: "structure",
@@ -185,7 +185,7 @@ export function ProgressOverviewTimeline({
           ref={timelineRef}
           className="scrollbar-none -mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
         >
-          <div className="relative min-w-[720px] lg:min-w-0">
+          <div className="relative min-w-[620px] md:min-w-0">
             {/* Base Gray Connecting Track (2px height at vertical center of 56px circles = 28px) */}
             <div
               aria-hidden

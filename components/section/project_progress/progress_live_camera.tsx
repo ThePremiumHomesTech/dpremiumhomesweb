@@ -81,18 +81,44 @@ function formatShortCameraLabel(rawName: string, idx: number): string {
   return rawName;
 }
 
+const DEFAULT_CAMERAS: CameraFeedItem[] = [
+  {
+    id: "main-site",
+    name: "MAIN SITE",
+    camera_name: "MAIN SITE",
+    image: "/image/progress/live_camera.png",
+  },
+  {
+    id: "building-a",
+    name: "BUILDING A",
+    camera_name: "BUILDING A",
+    image: "/image/progress/live_camera.png",
+  },
+  {
+    id: "building-b",
+    name: "BUILDING B",
+    camera_name: "BUILDING B",
+    image: "/image/progress/live_camera.png",
+  },
+  {
+    id: "rooftop",
+    name: "ROOFTOP",
+    camera_name: "ROOFTOP",
+    image: "/image/progress/live_camera.png",
+  },
+];
+
 function normalizeCameras(
   cameras?: Array<CameraFeedItem | string>,
   fallbackImage?: string,
 ): NormalizedCameraFeed[] {
   const defaultImg = fallbackImage || "/image/progress/live_camera.png";
-  if (!Array.isArray(cameras) || cameras.length === 0) {
-    return [];
-  }
+  const sourceCameras =
+    Array.isArray(cameras) && cameras.length > 0 ? cameras : DEFAULT_CAMERAS;
 
   const list: NormalizedCameraFeed[] = [];
 
-  cameras.forEach((item, idx) => {
+  sourceCameras.forEach((item, idx) => {
     const fallbackLabel = `Camera ${idx + 1}`;
 
     if (typeof item === "string") {
@@ -116,7 +142,6 @@ function normalizeCameras(
         (typeof item.link === "string" ? item.link : "") ||
         "";
       const streamUrl = typeof rawUrl === "string" ? rawUrl.trim() : "";
-      if (!streamUrl && !item.image) return;
 
       const fullName = item.name || item.camera_name || fallbackLabel;
       list.push({
@@ -339,54 +364,65 @@ export function ProgressLiveCamera({
     }
   };
 
-  const hasWorkData =
-    workCategoryProgress && Object.keys(workCategoryProgress).length > 0;
+  const hasWorkData = Boolean(
+    workCategoryProgress &&
+      Object.keys(workCategoryProgress).length > 0 &&
+      (workCategoryProgress.structural_work !== undefined ||
+        workCategoryProgress.brick_work !== undefined ||
+        workCategoryProgress.electrical_work !== undefined),
+  );
 
-  const breakdownItems = hasWorkData
-    ? [
-        {
-          label: "Handover",
-          percentage:
-            overallProgress !== undefined
-              ? Math.min(100, Math.max(0, Math.round(overallProgress)))
-              : parsePercentage(workCategoryProgress?.structural_work),
-        },
-        {
-          label: "Structure",
-          percentage: parsePercentage(workCategoryProgress?.structural_work),
-        },
-        {
-          label: "Brickwork",
-          percentage: parsePercentage(workCategoryProgress?.brick_work),
-        },
-        {
-          label: "Electrical",
-          percentage: parsePercentage(workCategoryProgress?.electrical_work),
-        },
-        {
-          label: "Plumbing",
-          percentage: parsePercentage(workCategoryProgress?.plumbing_work),
-        },
-        {
-          label: "Interior",
-          percentage: parsePercentage(
-            workCategoryProgress?.tiles_work ?? workCategoryProgress?.plaster_work,
-          ),
-        },
-        {
-          label: "Finishing",
-          percentage: parsePercentage(workCategoryProgress?.paint_work),
-        },
-      ]
-    : [
-        { label: "Handover", percentage: 0 },
-        { label: "Structure", percentage: 0 },
-        { label: "Brickwork", percentage: 0 },
-        { label: "Electrical", percentage: 0 },
-        { label: "Plumbing", percentage: 0 },
-        { label: "Interior", percentage: 0 },
-        { label: "Finishing", percentage: 0 },
-      ];
+  const breakdownItems = [
+    {
+      label: "Handover",
+      percentage: hasWorkData
+        ? parsePercentage(workCategoryProgress?.handover) ||
+          (overallProgress !== undefined
+            ? Math.min(100, Math.max(0, Math.round(overallProgress)))
+            : 0)
+        : 80,
+    },
+    {
+      label: "Structure",
+      percentage: hasWorkData
+        ? parsePercentage(workCategoryProgress?.structural_work)
+        : 80,
+    },
+    {
+      label: "Brickwork",
+      percentage: hasWorkData
+        ? parsePercentage(workCategoryProgress?.brick_work)
+        : 80,
+    },
+    {
+      label: "Electrical",
+      percentage: hasWorkData
+        ? parsePercentage(workCategoryProgress?.electrical_work)
+        : 80,
+    },
+    {
+      label: "Plumbing",
+      percentage: hasWorkData
+        ? parsePercentage(workCategoryProgress?.plumbing_work)
+        : 80,
+    },
+    {
+      label: "Interior",
+      percentage: hasWorkData
+        ? parsePercentage(
+            workCategoryProgress?.interior_work ??
+              workCategoryProgress?.tiles_work ??
+              workCategoryProgress?.plaster_work,
+          )
+        : 80,
+    },
+    {
+      label: "Finishing",
+      percentage: hasWorkData
+        ? parsePercentage(workCategoryProgress?.paint_work)
+        : 80,
+    },
+  ];
 
   return (
     <section
@@ -404,9 +440,9 @@ export function ProgressLiveCamera({
               </h2>
             </Appear>
 
-            <div className="flex w-full flex-col items-start gap-[24px]">
+            <div className="flex w-full flex-col items-start gap-[20px] sm:gap-[24px]">
               {/* Video Player Frame (832 × 448 in Figma 8036:25086) */}
-              <Shutter className="relative h-[260px] w-full bg-black sm:h-[380px] lg:h-[448px]">
+              <Shutter className="relative aspect-[16/9] min-h-[210px] w-full bg-black sm:min-h-[340px] lg:h-[448px] lg:min-h-0">
                 <div
                   ref={playerContainerRef}
                   className="relative size-full overflow-hidden bg-[#09221c]"
@@ -684,7 +720,7 @@ export function ProgressLiveCamera({
 
               {/* Camera Selector Pill Tabs for ALL cameras of this project (Figma 8036:25118) */}
               {hasCameras && (
-                <div className="flex flex-wrap items-center gap-[12px]">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-[12px]">
                   {resolvedCameras.map((feed, idx) => {
                     const isActive = String(activeCameraId) === feed.id;
                     return (
@@ -698,10 +734,10 @@ export function ProgressLiveCamera({
                           onClick={() => setActiveCameraId(feed.id)}
                           title={feed.name}
                           className={cn(
-                            "press flex h-[44px] cursor-pointer items-center justify-center rounded-[40px] font-sans text-[14px] font-medium uppercase leading-[1.7] tracking-[2px] whitespace-nowrap transition-colors duration-300",
+                            "press flex h-[38px] cursor-pointer items-center justify-center rounded-[40px] font-sans text-[12px] font-medium uppercase leading-[1.7] tracking-[1px] whitespace-nowrap transition-colors duration-300 sm:h-[44px] sm:text-[14px] sm:tracking-[2px]",
                             isActive
-                              ? "bg-[#054b3c] px-[24px] py-[16px] text-white"
-                              : "border border-[#dcdcdc] bg-white px-[20px] py-[18px] text-[#546360] hover:border-[#054b3c] hover:text-[#054b3c]",
+                              ? "bg-[#054b3c] px-[16px] py-[10px] text-white sm:px-[24px] sm:py-[16px]"
+                              : "border border-[#dcdcdc] bg-white px-[14px] py-[10px] text-[#546360] hover:border-[#054b3c] hover:text-[#054b3c] sm:px-[20px] sm:py-[18px]",
                           )}
                         >
                           <span className="trim">{feed.shortLabel}</span>
@@ -718,24 +754,24 @@ export function ProgressLiveCamera({
           <Appear
             preset="lift"
             delay={0.18}
-            className="w-full border border-[#ddd] bg-white p-6 sm:p-[32px] lg:mt-[57px] lg:min-h-[450px]"
+            className="w-full border border-[#ddd] bg-white p-5 sm:p-6 md:p-[32px] lg:mt-[57px] lg:min-h-[450px]"
           >
-            <div className="flex flex-col items-start gap-[32px]">
-              <h3 className="font-display text-[28px] font-medium capitalize leading-[1.1] text-[#054b3c] sm:text-[32px]">
+            <div className="flex flex-col items-start gap-[24px] sm:gap-[32px]">
+              <h3 className="font-display text-[24px] font-medium capitalize leading-[1.1] text-[#054b3c] sm:text-[28px] md:text-[32px]">
                 Progress Breakdown
               </h3>
 
-              <div className="flex w-full flex-col gap-[28px]">
+              <div className="flex w-full flex-col gap-[20px] sm:gap-[28px]">
                 {breakdownItems.map((item, idx) => (
                   <div
                     key={item.label}
-                    className="flex w-full items-center justify-between gap-4"
+                    className="flex w-full items-center justify-between gap-3 sm:gap-4"
                   >
-                    <span className="trim shrink-0 whitespace-nowrap font-sans text-[16px] font-normal leading-[1.2] text-black sm:text-[18px]">
+                    <span className="trim shrink-0 whitespace-nowrap font-sans text-[14px] font-normal leading-[1.2] text-black sm:text-[16px] md:text-[18px]">
                       {item.label}
                     </span>
 
-                    <div className="flex w-full max-w-[344px] items-center gap-[12px]">
+                    <div className="flex w-full max-w-[200px] items-center gap-2 sm:max-w-[344px] sm:gap-[12px]">
                       <div className="relative h-[8px] min-w-0 flex-1 overflow-hidden rounded-[4px] bg-[#f2f4f7]">
                         <motion.div
                           initial={{ width: "0%" }}

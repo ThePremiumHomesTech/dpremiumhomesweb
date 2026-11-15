@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,32 +22,32 @@ export function ProjectProgressHero() {
         }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-36 pb-20 sm:pb-28 md:pb-36 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] md:min-h-[640px]">
+      <div className="shell relative z-10 flex min-h-[500px] flex-col justify-between pb-16 pt-24 sm:min-h-[560px] sm:pb-24 sm:pt-28 md:min-h-[640px] md:pb-32 md:pt-36">
 
         {/* Hero Content Section */}
-        <div className="flex-1 flex flex-col justify-center mt-12 sm:mt-16 md:mt-20">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+        <div className="mt-8 flex flex-1 flex-col justify-center sm:mt-12 md:mt-16">
+          <div className="grid grid-cols-1 items-center gap-8 md:gap-10 lg:grid-cols-12 lg:gap-12">
             {/* Left Column: Heading and Subtitle */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-7 flex flex-col items-start text-left"
+              className="flex flex-col items-start text-left lg:col-span-7"
             >
               {/* Breadcrumb / Category Tag */}
-              <span className="inline-block text-[#d0a65b] font-medium text-xs sm:text-[13px] tracking-[0.22em] uppercase mb-4 sm:mb-6">
+              <span className="mb-3 inline-block font-sans text-xs font-medium uppercase tracking-[0.22em] text-[#d0a65b] sm:mb-5 sm:text-[13px]">
                 HOMEPAGE / PROJECT PROGRESS
               </span>
 
               {/* Display Headline */}
-              <h1 className="font-heading text-4xl sm:text-6xl md:text-7xl lg:text-[74px] xl:text-[80px] font-normal text-white leading-[1.08] sm:leading-[1.04] tracking-tight">
+              <h1 className="font-heading text-3xl font-normal leading-[1.08] tracking-tight text-white sm:text-5xl sm:leading-[1.04] md:text-6xl lg:text-[72px] xl:text-[80px]">
                 Building Your Future
                 <br />
                 Step By Step
               </h1>
 
               {/* Subtitle */}
-              <p className="font-sans text-xs sm:text-sm md:text-base text-white/75 font-normal leading-relaxed max-w-xl mt-5 sm:mt-7">
+              <p className="mt-4 max-w-xl font-sans text-xs font-normal leading-relaxed text-white/75 sm:mt-6 sm:text-sm md:text-base">
                 Track the progress of our communities as they take shape - from
                 foundation to handover.
               </p>
@@ -58,9 +58,12 @@ export function ProjectProgressHero() {
               initial={{ opacity: 0, scale: 0.96, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-5 flex justify-center lg:justify-end"
+              className="flex justify-center lg:col-span-5 lg:justify-end"
             >
-              <div className="w-full max-w-[340px] sm:max-w-[360px] rounded-2xl bg-[#0c2620]/80 backdrop-blur-md border border-white/10 p-4 sm:p-5 shadow-2xl transition-all duration-300 hover:border-white/20">
+              <Link
+                href="/project-progress/the-premium-green-valley"
+                className="group block w-full max-w-[340px] cursor-pointer rounded-2xl border border-white/10 bg-[#0c2620]/80 p-4 shadow-2xl backdrop-blur-md transition-all duration-300 hover:border-white/25 hover:shadow-[0_20px_40px_rgba(0,0,0,0.5)] sm:max-w-[360px] sm:p-5"
+              >
                 {/* Project Image */}
                 <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-black/40">
                   <Image
@@ -68,14 +71,14 @@ export function ProjectProgressHero() {
                     alt="TPH Green Valley"
                     fill
                     sizes="(max-width: 640px) 300px, 360px"
-                    className="object-cover object-center"
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
                     priority
                   />
                 </div>
 
                 {/* Project Details */}
                 <div className="mt-4">
-                  <h2 className="font-heading text-lg sm:text-xl font-medium text-white tracking-wide">
+                  <h2 className="font-heading text-lg sm:text-xl font-medium text-white tracking-wide group-hover:text-[#d0a65b] transition-colors">
                     TPH Green Valley
                   </h2>
 
@@ -115,7 +118,7 @@ export function ProjectProgressHero() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             </motion.div>
           </div>
         </div>

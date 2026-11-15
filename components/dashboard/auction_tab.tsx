@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { CalendarClock, Flame, Gavel, Medal, Radio, Tag, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { FilterChips } from "@/components/ui/filter_chips";

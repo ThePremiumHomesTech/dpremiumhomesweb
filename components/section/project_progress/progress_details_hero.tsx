@@ -43,8 +43,8 @@ export function ProgressDetailsHero({
               <Heading
                 as="h1"
                 size={100}
-                min={44}
-                leading={1}
+                min={34}
+                leading={1.05}
                 mask
                 className="text-white"
               >
@@ -72,7 +72,7 @@ export function ProgressDetailsHero({
                     alt=""
                     width={24}
                     height={24}
-                    className="size-6 shrink-0"
+                    className="size-5 shrink-0 sm:size-6"
                   />
                   <span
                     className="font-sans font-normal leading-[1.4] text-white"
@@ -86,17 +86,17 @@ export function ProgressDetailsHero({
           </div>
 
           {/* Right Stat Cards (Figma 8036:24981) */}
-          <div className="flex flex-wrap items-center gap-5 sm:flex-nowrap lg:gap-[40px]">
+          <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-5 lg:gap-[40px]">
             {/* Construction Complete Card (288 × 104) */}
             <Appear
               preset="lift"
               delay={0.22}
-              className="flex h-[104px] min-w-[260px] flex-1 items-center bg-white/[0.08] p-[20px] sm:w-[288px] sm:flex-initial"
+              className="flex h-[104px] w-full items-center bg-white/[0.08] p-[16px] sm:w-[288px] sm:p-[20px]"
             >
-              <div className="flex w-full items-center gap-[20px]">
-                <div className="relative flex size-[64px] shrink-0 items-center justify-center">
+              <div className="flex w-full items-center gap-[16px] sm:gap-[20px]">
+                <div className="relative flex size-[56px] shrink-0 items-center justify-center sm:size-[64px]">
                   <svg
-                    className="size-[64px] -rotate-90"
+                    className="size-[56px] -rotate-90 sm:size-[64px]"
                     viewBox="0 0 64 64"
                     aria-hidden
                   >
@@ -126,12 +126,12 @@ export function ProgressDetailsHero({
                   </svg>
                 </div>
 
-                <div className="flex flex-col items-start gap-[10px]">
+                <div className="flex flex-col items-start gap-[6px] sm:gap-[10px]">
                   <Counter
                     value={`${safePct}%`}
-                    className="trim font-display text-[32px] font-medium leading-[1.1] text-white"
+                    className="trim font-display text-[26px] font-medium leading-[1.1] text-white sm:text-[32px]"
                   />
-                  <span className="trim whitespace-nowrap font-sans text-[14px] font-normal leading-[1.7] tracking-[1px] text-white">
+                  <span className="trim whitespace-nowrap font-sans text-[12px] font-normal leading-[1.7] tracking-[1px] text-white sm:text-[14px]">
                     Construction Complete
                   </span>
                 </div>
@@ -143,23 +143,23 @@ export function ProgressDetailsHero({
               <Appear
                 preset="lift"
                 delay={0.3}
-                className="flex h-[106px] min-w-[240px] flex-1 items-center bg-white/[0.08] p-[20px] sm:w-[254px] sm:flex-initial"
+                className="flex h-[106px] w-full items-center bg-white/[0.08] p-[16px] sm:w-[254px] sm:p-[20px]"
               >
-                <div className="flex items-center gap-[20px]">
+                <div className="flex items-center gap-[16px] sm:gap-[20px]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/image/progress/icons/hero-calendar.svg"
                     alt=""
                     width={56}
                     height={56}
-                    className="size-[56px] shrink-0"
+                    className="size-[48px] shrink-0 sm:size-[56px]"
                   />
 
-                  <div className="flex flex-col items-start gap-[10px]">
-                    <span className="trim whitespace-nowrap font-display text-[32px] font-medium leading-[1.1] text-white">
+                  <div className="flex flex-col items-start gap-[6px] sm:gap-[10px]">
+                    <span className="trim whitespace-nowrap font-display text-[26px] font-medium leading-[1.1] text-white sm:text-[32px]">
                       {expectedHandover}
                     </span>
-                    <span className="trim whitespace-nowrap font-sans text-[14px] font-normal leading-[1.7] tracking-[1px] text-white">
+                    <span className="trim whitespace-nowrap font-sans text-[12px] font-normal leading-[1.7] tracking-[1px] text-white sm:text-[14px]">
                       Expected Handover
                     </span>
                   </div>

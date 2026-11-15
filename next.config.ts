@@ -10,6 +10,18 @@ const nextConfig: NextConfig = {
         hostname: "thepremiumhomesltd.com",
       },
       {
+        protocol: "http",
+        hostname: "thepremiumhomesltd.com",
+      },
+      {
+        protocol: "https",
+        hostname: "dpremiumhomes.com",
+      },
+      {
+        protocol: "http",
+        hostname: "dpremiumhomes.com",
+      },
+      {
         protocol: "https",
         hostname: "api.dpremiumhomes.com",
       },

@@ -14,7 +14,8 @@ import {
   Heading,
   PatternStrip,
 } from "@/components/ui/primitives";
-import { cleanBlogTitle, sanitizeImageUrl } from "@/lib/blogs";
+import { cleanBlogTitle, sanitizeImageUrl, type BlogSummary } from "@/lib/blogs";
+import { API_BASE } from "@/lib/api";
 import { SPRING_SLOW } from "@/lib/utils";
 
 const MotionLink = motion.create(Link);
@@ -59,9 +60,9 @@ const FALLBACK_POSTS: Post[] = [
   },
 ];
 
-type ApiBlog = { title?: string; slug?: string; category?: string | null; image?: string | null };
+type ApiBlog = { title?: string; slug?: string | null; category?: string | null; image?: string | null };
 
-function toPosts(blogs: ApiBlog[]): Post[] {
+function toPosts(blogs: (ApiBlog | BlogSummary)[]): Post[] {
   const valid = blogs.filter((b) => b.title).slice(0, MAX_POSTS);
   return valid.map((b) => ({
     title: cleanBlogTitle(b.title),
@@ -73,14 +74,17 @@ function toPosts(blogs: ApiBlog[]): Post[] {
 
 const AUTOPLAY_MS = 4000;
 
-export function LatestBlogs() {
-  const [posts, setPosts] = useState<Post[]>(FALLBACK_POSTS);
+export function LatestBlogs({ initialBlogs }: { initialBlogs?: BlogSummary[] }) {
+  const [posts, setPosts] = useState<Post[]>(() => {
+    if (initialBlogs && initialBlogs.length > 0) {
+      return toPosts(initialBlogs);
+    }
+    return FALLBACK_POSTS;
+  });
 
   useEffect(() => {
-    const baseUrl = (
-      process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.dpremiumhomes.com/api"
-    ).replace(/\/+$/, "");
-    fetch(`${baseUrl}/blogs`)
+    if (initialBlogs && initialBlogs.length > 0) return;
+    fetch(`${API_BASE}/blogs`)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -90,7 +94,7 @@ export function LatestBlogs() {
         if (Array.isArray(rawList) && rawList.length > 0) setPosts(toPosts(rawList));
       })
       .catch((err) => console.warn("Failed to fetch blogs, using fallback posts:", err));
-  }, []);
+  }, [initialBlogs]);
 
   const N = posts.length;
   // Three copies in a row; the track always rests inside the middle copy, so it can run forever both ways.

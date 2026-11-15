@@ -6,7 +6,7 @@ import { SmoothScroll } from "@/components/providers/smooth_scroll";
 import { Preloader } from "@/components/preloader";
 
 // App portals scroll inside their own panels, which Lenis would hijack; they keep native scrolling and skip the intro.
-const PORTAL_PREFIXES = ["/admin", "/dashboard", "/tphl-forms", "/login", "/register", "/f/", "/payment"];
+const PORTAL_PREFIXES = ["/admin", "/dashboard", "/guest", "/tphl-forms", "/login", "/register", "/f/", "/payment"];
 
 export function isPortalPath(pathname: string) {
   return PORTAL_PREFIXES.some((p) => pathname === p || pathname.startsWith(p.endsWith("/") ? p : `${p}/`));

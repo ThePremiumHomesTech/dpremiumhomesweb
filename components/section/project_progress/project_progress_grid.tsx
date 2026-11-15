@@ -3,14 +3,15 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Search, ChevronDown, Sparkles } from "lucide-react";
+import { MapPin, Search, ChevronDown, ArrowRight, ArrowUpRight } from "lucide-react";
+import { HoverShutter } from "@/components/ui/hover_shutter";
 import { cn } from "@/lib/utils";
+import { API_BASE } from "@/lib/api";
 
 // API endpoint for construction projects progress
-// Can be changed manually or overridden via NEXT_PUBLIC_CONSTRUCTION_PROGRESS_API
 export const CONSTRUCTION_PROGRESS_API =
   process.env.NEXT_PUBLIC_CONSTRUCTION_PROGRESS_API ||
-  "http://127.0.0.1:8000/api/construction-projects-progress";
+  `${API_BASE}/constructions/projects-progress`;
 
 export interface WorkCategoryProgress {
   structural_work?: string;
@@ -26,16 +27,25 @@ export interface ApiConstructionProject {
   property_id: number;
   property_name?: string;
   name?: string;
+  project_name?: string;
   lastUpdatedDate?: string;
   lastMonthTarget?: string;
   lastMonthAchieved?: string;
   work_category_progress?: WorkCategoryProgress;
   image?: string;
+  project_image?: string;
+  image2?: string;
+  hover_image?: string;
+  featured_image?: string;
   location?: string;
+  project_location?: string;
   slug?: string;
+  project_slug?: string;
   category?: "ONGOING" | "UPCOMING" | "COMPLETED";
   status?: string;
   progress?: number;
+  overall_progress?: string | number;
+  totalProgress?: string | number;
   handover?: string;
 }
 
@@ -48,6 +58,7 @@ export interface ProjectProgressItem {
   currentStage: string;
   handover: string;
   image: string;
+  image2?: string;
   href?: string;
   slug?: string;
   lastUpdatedDate?: string;
@@ -127,12 +138,22 @@ function mapApiItemToProject(
   index: number
 ): ProjectProgressItem {
   const name =
-    item.name || item.property_name || `Project ${item.property_id || index + 1}`;
-  const location = item.location || "Ashulia Model Town";
-  const progress = calculateOverallProgress(
-    item.progress,
-    item.work_category_progress
-  );
+    item.project_name ||
+    item.name ||
+    item.property_name ||
+    `Project ${item.property_id || index + 1}`;
+  const location =
+    item.project_location || item.location || "Bashundhara R/A, Dhaka";
+
+  const rawProgress =
+    item.overall_progress ?? item.totalProgress ?? item.progress;
+  const progress =
+    parsePercentage(rawProgress) ||
+    calculateOverallProgress(
+      typeof rawProgress === "number" ? rawProgress : undefined,
+      item.work_category_progress
+    );
+
   const currentStage = determineStage(item.work_category_progress);
 
   let category: "ONGOING" | "UPCOMING" | "COMPLETED" = "ONGOING";
@@ -156,73 +177,159 @@ function mapApiItemToProject(
     item.handover ||
     (item.lastUpdatedDate ? formatDate(item.lastUpdatedDate) : "Dec 2027");
 
+  const image =
+    item.project_image || item.image || "/image/progress/tph_green_valley.png";
+
+  const secondaryGalleryPool = [
+    "/image/progress/Lobby.png",
+    "/image/progress/Gym.png",
+    "/image/progress/Mosque.png",
+    "/image/progress/parking.png",
+    "/image/progress/playground.png",
+    "/image/progress/FloorPlan.png",
+  ];
+  const image2 =
+    item.image2 ||
+    item.hover_image ||
+    item.featured_image ||
+    secondaryGalleryPool[index % secondaryGalleryPool.length];
+
+  const slug =
+    item.project_slug || item.slug || `project-${item.property_id || index + 1}`;
+
   return {
-    id: String(item.property_id || index + 1),
+    id: `proj-${item.property_id || index + 1}-${index}`,
     name,
     location,
     category,
     progress,
     currentStage,
     handover,
-    image: item.image || "/image/progress/tph_green_valley.png",
-    slug: item.slug,
-    href: `/project-progress/${item.slug || item.property_id || index + 1}`,
+    image,
+    image2,
+    slug,
+    href: `/project-progress/${slug}`,
     lastUpdatedDate: item.lastUpdatedDate,
   };
 }
 
 const FALLBACK_PROJECTS: ProjectProgressItem[] = [
   {
-    id: "15",
-    name: "The Premium Studio Suite 3.0",
-    location: "Ashulia Model Town",
+    id: "green-valley-1",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
     category: "ONGOING",
-    progress: 5.3,
+    progress: 65,
     currentStage: "Structural Work",
-    handover: "03 Sep 2024",
-    lastUpdatedDate: "2024-09-03",
-    image:
-      "https://thepremiumhomesltd.com/TPHL-ERP/public/uploads/projects/projects_6a2e33d7a8e06.png",
-    href: "/project-progress/the-premium-studio-suite-30",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/Lobby.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
   },
   {
-    id: "17",
-    name: "The Premium Southpoint Villa",
-    location: "Ashulia Model Town",
+    id: "green-valley-2",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
     category: "ONGOING",
-    progress: 2.5,
-    currentStage: "Structural Work",
-    handover: "03 Sep 2024",
-    lastUpdatedDate: "2024-09-03",
-    image:
-      "https://thepremiumhomesltd.com/TPHL-ERP/public/uploads/projects/projects_6a2e2fab5868d.png",
-    href: "/project-progress/the-premium-southpoint-villa",
+    progress: 65,
+    currentStage: "Brick & Plaster",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/Gym.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
   },
   {
-    id: "22",
-    name: "The Premium Lake View Terrace",
-    location: "Ashulia Model Town",
+    id: "green-valley-3",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
     category: "ONGOING",
-    progress: 1.2,
-    currentStage: "Structural Work",
-    handover: "03 Sep 2024",
-    lastUpdatedDate: "2024-09-03",
-    image:
-      "https://thepremiumhomesltd.com/TPHL-ERP/public/uploads/projects/projects_6a2e2aa048b1c.png",
-    href: "/project-progress/the-premium-lake-view-terrace",
+    progress: 65,
+    currentStage: "Foundation",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/Mosque.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
   },
   {
-    id: "34",
-    name: "The Premium Southern Residence",
-    location: "Ashulia Model Town",
+    id: "green-valley-4",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
     category: "ONGOING",
-    progress: 5.3,
+    progress: 65,
     currentStage: "Structural Work",
-    handover: "03 Sep 2024",
-    lastUpdatedDate: "2024-09-03",
-    image:
-      "https://thepremiumhomesltd.com/TPHL-ERP/public/uploads/projects/projects_6a2e2d5abb3f0.png",
-    href: "/project-progress/the-premium-southern-residence",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/parking.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
+  },
+  {
+    id: "green-valley-5",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
+    category: "ONGOING",
+    progress: 65,
+    currentStage: "Structural Work",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/playground.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
+  },
+  {
+    id: "green-valley-6",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
+    category: "ONGOING",
+    progress: 65,
+    currentStage: "Structural Work",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/FloorPlan.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
+  },
+  {
+    id: "green-valley-7",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
+    category: "ONGOING",
+    progress: 65,
+    currentStage: "Structural Work",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/Lobby.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
+  },
+  {
+    id: "green-valley-8",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
+    category: "ONGOING",
+    progress: 65,
+    currentStage: "Structural Work",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/Gym.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
+  },
+  {
+    id: "green-valley-9",
+    name: "The Green Vally",
+    location: "Bashundhara R/A, Dhaka",
+    category: "ONGOING",
+    progress: 65,
+    currentStage: "Structural Work",
+    handover: "Dec 2027",
+    image: "/image/progress/tph_green_valley.png",
+    image2: "/image/progress/Mosque.png",
+    slug: "the-green-valley",
+    href: "/project-progress/the-green-valley",
   },
 ];
 
@@ -315,9 +422,9 @@ export function ProjectProgressGrid() {
   return (
     <section
       aria-label="Explore Project Progress"
-      className="w-full bg-[#fbf9f5] py-16 sm:py-20 md:py-24 border-t border-black/5"
+      className="w-full bg-[#fbf9f5] py-12 sm:py-16 md:py-24 border-t border-black/5"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="shell">
         {/* Section Heading */}
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-8 sm:mb-10">
           <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-normal text-[#083327] tracking-tight">
@@ -482,42 +589,104 @@ export function ProjectProgressGrid() {
           /* Cards Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 lg:gap-8">
             {filteredProjects.map((project) => (
-              <div
+              <article
                 key={project.id}
-                className="group rounded-2xl bg-white border border-black/[0.08] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                className="group relative rounded-[22px] bg-white border border-[#e6e2d8] p-4 sm:p-[18px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(8,51,39,0.1)] hover:border-[#083327]/35 hover:-translate-y-1.5 transition-all duration-500 ease-out flex flex-col justify-between"
               >
-                {/* Image Container with inner padding/rounding */}
-                <div className="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-black/10">
-                  <Image
-                    src={project.image}
-                    alt={project.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
+                {/* Image Container with HoverShutter effect like Projects page */}
+                <Link
+                  href={
+                    project.href ||
+                    `/project-progress/${project.slug || project.id}`
+                  }
+                  className="zoom-frame relative block w-full aspect-[16/10] rounded-[16px] overflow-hidden bg-[#eef1ef]"
+                >
+                  <div className="absolute inset-0">
+                    <Image
+                      src={project.image}
+                      alt={project.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                  </div>
+
+                  {/* Brand Shutter reveal on hover (matches projects page) */}
+                  {project.image2 && (
+                    <HoverShutter
+                      src={project.image2}
+                      armed={true}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  )}
+
+                  {/* Glass Status Badge (Top-Left) */}
+                  <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(8,51,39,0.75)] backdrop-blur-md border border-white/20 text-white text-[10px] font-medium tracking-[1.4px] uppercase shadow-sm">
+                    <span
+                      className={cn(
+                        "size-1.5 rounded-full shrink-0",
+                        project.category === "COMPLETED"
+                          ? "bg-emerald-400"
+                          : project.category === "UPCOMING"
+                            ? "bg-amber-300"
+                            : "bg-[#cfa564] animate-pulse",
+                      )}
+                    />
+                    <span className="trim leading-[1.6]">{project.category}</span>
+                  </div>
+
+                  {/* Hover Quick Action Indicator (Top-Right) */}
+                  <div className="absolute top-3.5 right-3.5 z-10 size-8 rounded-full bg-white/25 backdrop-blur-md border border-white/30 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-300 shadow-md">
+                    <ArrowUpRight className="size-4 text-white" />
+                  </div>
+                </Link>
 
                 {/* Card Content */}
                 <div className="pt-4 px-1 flex-1 flex flex-col justify-between">
                   {/* Name and Location */}
                   <div>
-                    <h3 className="font-heading text-xl sm:text-[22px] font-medium text-[#083327] tracking-tight leading-snug line-clamp-1">
-                      {project.name}
+                    <h3 className="font-heading text-xl sm:text-[23px] font-medium text-[#083327] tracking-tight leading-snug line-clamp-1 group-hover:text-[#cfa564] transition-colors duration-300">
+                      <Link
+                        href={
+                          project.href ||
+                          `/project-progress/${project.slug || project.id}`
+                        }
+                      >
+                        {project.name}
+                      </Link>
                     </h3>
-                    <div className="flex items-center gap-1.5 text-xs text-[#6e7d75] mt-1">
-                      <MapPin className="h-3 w-3 text-[#6e7d75] shrink-0" />
+                    <div className="flex items-center gap-1.5 text-xs text-[#718078] mt-1.5 font-sans">
+                      <MapPin className="h-3.5 w-3.5 text-[#cfa564] shrink-0" />
                       <span className="truncate">{project.location}</span>
                     </div>
                   </div>
 
+                  {/* Animated Brand Reveal Line on hover */}
+                  <div className="mt-4 pt-1 relative">
+                    <span className="relative block h-px w-full overflow-hidden bg-[#e8e2d2]">
+                      <span className="absolute inset-0 origin-left scale-x-0 bg-[#083327] transition-transform duration-700 ease-out group-hover:scale-x-100" />
+                    </span>
+                  </div>
+
                   {/* Progress Section */}
-                  <div className="mt-4 pt-3 border-t border-black/5">
+                  <div className="mt-3">
                     <div className="flex items-baseline justify-between">
-                      <div className="flex items-center gap-1.5 text-[11px] font-medium tracking-[0.14em] uppercase text-[#6e7d75]">
-                        <Sparkles className="h-3 w-3 text-[#c59e5f] shrink-0" />
+                      <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.16em] uppercase text-[#718078]">
+                        <svg
+                          className="h-3.5 w-3.5 text-[#cfa564] shrink-0"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <polyline points="2 11 6 7 10 11 14 5" />
+                          <circle cx="14" cy="5" r="1.2" fill="currentColor" />
+                        </svg>
                         <span>PROJECT PROGRESS</span>
                       </div>
-                      <span className="font-heading text-2xl sm:text-[28px] font-normal text-[#c59e5f] leading-none">
+                      <span className="font-heading text-2xl sm:text-[28px] font-normal text-[#cfa564] leading-none">
                         {project.progress}%
                       </span>
                     </div>
@@ -529,7 +698,7 @@ export function ProjectProgressGrid() {
                       aria-valuemin={0}
                       aria-valuemax={100}
                       aria-label={`${project.name} progress ${project.progress}%`}
-                      className="w-full h-2 bg-[#f0e8db] rounded-full overflow-hidden mt-2 relative"
+                      className="w-full h-2.5 bg-[#f4ede4] rounded-full overflow-hidden mt-2.5 relative p-0.5"
                     >
                       <div
                         style={{
@@ -538,47 +707,49 @@ export function ProjectProgressGrid() {
                             Math.max(0, project.progress)
                           )}%`,
                         }}
-                        className="h-full bg-[#c59e5f] rounded-full transition-all duration-700 ease-out"
+                        className="h-full bg-gradient-to-r from-[#b98e4f] via-[#cfa564] to-[#deb974] rounded-full transition-all duration-1000 ease-out shadow-xs"
                       />
                     </div>
                   </div>
 
-                  {/* Current Stage & Handover / Last Updated */}
-                  <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-black/5">
-                    <div>
-                      <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#7d8b84]">
+                  {/* Current Stage & Handover */}
+                  <div className="grid grid-cols-2 gap-3 mt-4 pt-3.5 border-t border-[#f0ebe1]">
+                    <div className="flex flex-col">
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#86958d]">
                         CURRENT STAGE
                       </span>
-                      <span className="block font-heading text-sm sm:text-base font-normal text-[#083327] mt-0.5 truncate">
-                        {project.currentStage}
-                      </span>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <span className="size-1.5 rounded-full bg-[#cfa564] shrink-0" />
+                        <span className="block font-heading text-sm sm:text-[15px] font-medium text-[#083327] truncate">
+                          {project.currentStage}
+                        </span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <span className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[#7d8b84]">
-                        {project.lastUpdatedDate ? "LAST UPDATED" : "HANDOVER"}
+                    <div className="flex flex-col text-right">
+                      <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-[#86958d]">
+                        HANDOVER
                       </span>
-                      <span className="block font-heading text-sm sm:text-base font-normal text-[#083327] mt-0.5 truncate">
-                        {project.lastUpdatedDate
-                          ? formatDate(project.lastUpdatedDate)
-                          : project.handover}
+                      <span className="block font-heading text-sm sm:text-[15px] font-medium text-[#083327] mt-1 truncate">
+                        {project.handover}
                       </span>
                     </div>
                   </div>
 
-                  {/* View Progress Action Button */}
+                  {/* View Progress Action Button with Sliding Arrow */}
                   <div className="mt-5 pt-1">
                     <Link
                       href={
                         project.href ||
                         `/project-progress/${project.slug || project.id}`
                       }
-                      className="w-full inline-flex items-center justify-center py-2.5 rounded-full text-xs font-semibold tracking-[0.14em] uppercase text-[#083327] border border-[#083327]/30 hover:bg-[#083327] hover:text-white transition-all duration-300 shadow-2xs active:scale-[0.98]"
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-full text-xs font-semibold tracking-[0.18em] uppercase text-[#083327] border border-[#083327]/30 bg-[#faf8f5] group-hover:bg-[#083327] group-hover:text-white group-hover:border-[#083327] group-hover:shadow-[0_8px_20px_rgba(8,51,39,0.2)] transition-all duration-300 shadow-2xs active:scale-[0.99] cursor-pointer"
                     >
-                      VIEW PROGRESS
+                      <span>VIEW PROGRESS</span>
+                      <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </Link>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}

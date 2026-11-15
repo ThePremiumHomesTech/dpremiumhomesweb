@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { Bell, Calendar, ArrowLeft, Loader2, Building2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { ClientFlat } from "./types";
 import { fetchProjectNotices, ProjectNoticeItem } from "@/lib/client-dashboard";
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { ClientUser, ClientFlat } from "./types";
@@ -13,6 +13,7 @@ import {
   removeFromUserWishlist,
 } from "@/lib/client-dashboard";
 import { getClientUserId } from "@/lib/client-auth";
+import { API_BASE } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 interface OverviewTabProps {
@@ -273,10 +274,7 @@ export function OverviewTab({
     async function loadOngoingProjects() {
       try {
         setIsLoadingProjects(true);
-        const baseUrl = (
-          process.env.NEXT_PUBLIC_API_BASE_URL ||
-          "https://api.dpremiumhomes.com/api"
-        ).replace(/\/+$/, "");
+        const baseUrl = API_BASE;
 
         const res = await fetch(`${baseUrl}/projects`, { cache: "no-store" });
         if (res.ok) {
@@ -675,76 +673,70 @@ export function OverviewTab({
                   key={`${flat.id}-${idx}`}
                   variants={cardItemVariants}
                   whileHover={{ y: -4, transition: { duration: 0.22 } }}
-                  className="bg-white flex flex-col gap-[16px] items-start p-[16px] relative rounded-[16px] group transition-shadow hover:shadow-[0_12px_32px_rgba(5,75,60,0.08)]"
+                  className="group bg-white flex flex-col justify-between p-4 sm:p-[18px] relative rounded-[22px] border border-[#e6e2d8] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(8,51,39,0.1)] hover:border-[#083327]/35 transition-all duration-500 ease-out"
                 >
-                  {/* Project Image (8313:22400) */}
-                  <div className="h-[177.5px] relative rounded-[8px] overflow-hidden shrink-0 w-full bg-stone-100">
+                  {/* Project Image */}
+                  <div className="zoom-frame relative w-full aspect-[16/10] rounded-[16px] overflow-hidden shrink-0 bg-[#eef1ef]">
                     <Image
                       src={flat.image || "/image/progress/tph_green_valley.png"}
                       alt={flat.title}
                       fill
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover object-center rounded-[8px] group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
-                  </div>
 
-                  {/* Top-Left Status Badge (8313:22423) */}
-                  <div className="absolute left-[28px] top-[28px] z-10 flex items-center gap-1.5 flex-wrap">
-                    <div className="bg-[#f9f0e2] border border-[#f5e5cc] flex items-center justify-center px-[8px] py-[5px] rounded-full">
-                      <span className="text-[12px] font-normal leading-[14px] text-[#8a621e] whitespace-nowrap">
-                        {flat.status || "Under Construction"}
-                      </span>
-                    </div>
-                    {flat.flatNo && (
-                      <div className="bg-white/95 border border-[#f1f2f6] flex items-center justify-center px-[8px] py-[5px] rounded-full">
-                        <span className="text-[12px] font-medium leading-[14px] text-[#054b3c] whitespace-nowrap">
-                          Unit {flat.flatNo}
+                    {/* Top-Left Status Badge */}
+                    <div className="absolute left-3.5 top-3.5 z-10 flex items-center gap-1.5 flex-wrap">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[rgba(8,51,39,0.78)] backdrop-blur-md border border-white/20 text-white text-[10px] font-medium tracking-[1.4px] uppercase shadow-sm">
+                        <span className="size-1.5 rounded-full bg-[#cfa564] animate-pulse shrink-0" />
+                        <span className="leading-[1.6]">
+                          {flat.status || "Under Construction"}
                         </span>
                       </div>
-                    )}
+                      {flat.flatNo && (
+                        <div className="inline-flex items-center px-2.5 py-1 rounded-full bg-white/95 backdrop-blur-md border border-white/50 text-[#083327] text-[10px] font-semibold tracking-wide uppercase shadow-sm">
+                          Unit {flat.flatNo}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Project Info Container (8313:22401) */}
-                  <div className="flex flex-col gap-[16px] items-start w-full flex-1 justify-between">
-                    {/* Title + Location (8313:22402) */}
-                    <div className="flex flex-col gap-[5px] items-start w-full">
-                      <h3 className="text-[18px] font-semibold leading-none text-[#054b3c] w-full truncate">
+                  {/* Project Info Container */}
+                  <div className="pt-4 px-1 flex-1 flex flex-col justify-between w-full">
+                    {/* Title + Location */}
+                    <div>
+                      <h3 className="font-heading text-lg sm:text-[21px] font-medium text-[#083327] tracking-tight leading-snug line-clamp-1 group-hover:text-[#cfa564] transition-colors duration-300">
                         {flat.title}
                       </h3>
-                      <div className="flex gap-[4px] items-center w-full">
-                        <LocationPinIcon className="w-[18px] h-[18px] text-[#59657b] shrink-0" />
-                        <p className="text-[14px] font-normal leading-[18px] text-[#59657b] truncate">
-                          {flat.location || "Gulshan 2, Dhaka"}
+                      <div className="flex items-center gap-1.5 text-xs text-[#718078] mt-1.5 font-sans">
+                        <LocationPinIcon className="w-3.5 h-3.5 text-[#cfa564] shrink-0" />
+                        <p className="truncate">
+                          {flat.location || "Ashulia Model Town"}
                         </p>
                       </div>
                     </div>
 
-                    {/* Divider (8313:22407) */}
-                    <div className="bg-[#f1f2f6] h-px w-full" />
+                    {/* Animated Brand Reveal Line on hover */}
+                    <div className="mt-3.5 pt-1 relative">
+                      <span className="relative block h-px w-full overflow-hidden bg-[#e8e2d2]">
+                        <span className="absolute inset-0 origin-left scale-x-0 bg-[#083327] transition-transform duration-700 ease-out group-hover:scale-x-100" />
+                      </span>
+                    </div>
 
-                    {/* Construction & Handover + Progress Bar (8313:22408) */}
-                    <div className="flex flex-col gap-[8px] items-start w-full">
-                      <div className="flex items-center justify-between leading-[18px] w-full">
-                        <div className="flex flex-col gap-[2px] items-start">
-                          <span className="text-[12px] font-normal text-[#59657b] uppercase">
-                            Construction
-                          </span>
-                          <span className="text-[14px] font-medium text-[#232f43]">
-                            {progressPct}% complete
-                          </span>
+                    {/* Construction & Handover + Progress Bar */}
+                    <div className="mt-3 flex flex-col gap-2 w-full">
+                      <div className="flex items-center justify-between text-xs leading-tight w-full">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.14em] uppercase text-[#718078]">
+                          <span className="size-1.5 rounded-full bg-[#cfa564] shrink-0" />
+                          <span>Construction</span>
                         </div>
-                        <div className="flex flex-col gap-[2px] items-start">
-                          <span className="text-[12px] font-normal text-[#59657b] uppercase">
-                            Handover
-                          </span>
-                          <span className="text-[14px] font-medium text-[#232f43]">
-                            {flat.handover_date || "Dec 2027"}
-                          </span>
-                        </div>
+                        <span className="font-heading text-lg sm:text-xl font-normal text-[#cfa564]">
+                          {progressPct}%
+                        </span>
                       </div>
 
-                      {/* 8px Gold Progress Bar (8313:22416) */}
-                      <div className="bg-[#f1f2f6] h-[8px] rounded-[99px] w-full overflow-hidden">
+                      {/* Gold Gradient Progress Bar */}
+                      <div className="w-full h-2 bg-[#f4ede4] rounded-full overflow-hidden relative p-0.5">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${progressPct}%` }}
@@ -753,23 +745,30 @@ export function OverviewTab({
                             delay: 0.25 + idx * 0.1,
                             ease: EASE_OUT_EXPO,
                           }}
-                          className="bg-[#d8a44d] h-[8px] rounded-[99px]"
+                          className="h-full bg-gradient-to-r from-[#b98e4f] via-[#cfa564] to-[#deb974] rounded-full shadow-xs"
                         />
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-[#86958d] mt-1">
+                        <span>Handover Target</span>
+                        <span className="font-medium text-[#083327]">
+                          {flat.handover_date || "Dec 2027"}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Bottom Price & View Project Row (8313:22418) */}
-                    <div className="flex items-center justify-between gap-3 w-full">
-                      <p className="text-[16px] font-bold leading-[20px] text-[#232f43] truncate min-w-0">
+                    {/* Bottom Price & View Project Button */}
+                    <div className="mt-4 pt-3 border-t border-[#f0ebe1] flex items-center justify-between gap-3 w-full">
+                      <p className="font-heading text-base sm:text-lg font-medium text-[#083327] truncate min-w-0">
                         {flat.price || "From ৳2.5 Cr"}
                       </p>
                       <button
                         type="button"
                         onClick={() => onSelectProject?.(flat)}
-                        className="group/btn inline-flex items-center gap-[4px] shrink-0 whitespace-nowrap text-[14px] font-medium leading-[20px] text-[#005d4d] hover:text-[#054b3c] transition-colors cursor-pointer"
+                        className="group/btn inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-full text-xs font-semibold tracking-[0.12em] uppercase text-[#083327] border border-[#083327]/30 hover:bg-[#083327] hover:text-white transition-all duration-300 cursor-pointer"
                       >
-                        <span>View Project</span>
-                        <ChevronRightIcon className="w-[16px] h-[16px] text-[#005d4d] transition-transform duration-300 group-hover/btn:translate-x-1" />
+                        <span>View Progress</span>
+                        <ChevronRightIcon className="w-3.5 h-3.5 transition-transform duration-300 group-hover/btn:translate-x-0.5" />
                       </button>
                     </div>
                   </div>

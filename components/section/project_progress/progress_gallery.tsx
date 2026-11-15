@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { Expand, X } from "lucide-react";
 import { Appear, Shutter } from "@/components/ui/motion";
 import { Eyebrow, Heading } from "@/components/ui/primitives";
+import { cn } from "@/lib/utils";
 
 interface AmenityItem {
   id: number | string;
@@ -23,44 +24,32 @@ const GALLERY_SLOTS = [
   {
     defaultTitle: "Mosque",
     defaultImage: "/image/progress/Mosque.png",
-    w: 200,
-    h: 247,
-  },
-  {
-    defaultTitle: "Mosque",
-    defaultImage: "/image/progress/Mosque.png",
-    w: 260,
-    h: 322,
+    w: 240,
+    h: 300,
   },
   {
     defaultTitle: "Fitness Gym",
     defaultImage: "/image/progress/Gym.png",
     w: 300,
-    h: 371,
+    h: 375,
   },
   {
     defaultTitle: "Lobby",
     defaultImage: "/image/progress/Lobby.png",
     w: 400,
-    h: 495,
+    h: 500,
   },
   {
     defaultTitle: "Parking",
     defaultImage: "/image/progress/parking.png",
     w: 300,
-    h: 371,
+    h: 375,
   },
   {
     defaultTitle: "Playground",
     defaultImage: "/image/progress/playground.png",
-    w: 260,
-    h: 322,
-  },
-  {
-    defaultTitle: "Park",
-    defaultImage: "/image/progress/playground.png",
-    w: 200,
-    h: 247,
+    w: 240,
+    h: 300,
   },
 ];
 
@@ -75,16 +64,30 @@ export function ProgressGallery({
   } | null>(null);
 
   const galleryItems = React.useMemo(() => {
-    return GALLERY_SLOTS.map((slot, idx) => {
-      const amenity =
-        amenities.length > 0 ? amenities[idx % amenities.length] : undefined;
-      const apiImg = amenity?.image || amenity?.img || "";
-      return {
+    if (!amenities || amenities.length === 0) {
+      return GALLERY_SLOTS.map((slot, idx) => ({
         id: `${slot.defaultTitle}-${idx}`,
-        title: amenity?.name || slot.defaultTitle,
-        image: apiImg || slot.defaultImage || projectImage || "/image/progress/Lobby.png",
+        title: slot.defaultTitle,
+        image:
+          slot.defaultImage || projectImage || "/image/progress/Lobby.png",
         w: slot.w,
         h: slot.h,
+      }));
+    }
+
+    const patternW = [240, 300, 380, 300, 240, 300, 380, 300];
+    const patternH = [300, 375, 480, 375, 300, 375, 480, 375];
+
+    return amenities.map((item, idx) => {
+      const w = patternW[idx % patternW.length];
+      const h = patternH[idx % patternH.length];
+      const apiImg = item.image || item.img || "";
+      return {
+        id: `amenity-${item.id || idx}`,
+        title: item.name,
+        image: apiImg || projectImage || "/image/progress/Lobby.png",
+        w,
+        h,
       };
     });
   }, [amenities, projectImage]);
@@ -92,7 +95,7 @@ export function ProgressGallery({
   return (
     <section
       aria-label="Project Gallery Section"
-      className="relative w-full overflow-hidden bg-[#054b3c] py-[clamp(64px,6.25vw,100px)] text-white"
+      className="relative w-full overflow-hidden bg-[#09221c] py-[clamp(64px,6.25vw,100px)] text-white"
     >
       <div className="shell">
         {/* Centered Section Header (Figma 8036:25218) */}
@@ -110,25 +113,29 @@ export function ProgressGallery({
         </div>
       </div>
 
-      {/* Full-bleed Staggered 7-Slot Gallery Strip (Figma 8036:25221, 2112px wide) */}
-      <div className="mx-auto flex w-full max-w-[2112px] items-center justify-center gap-3 px-2 sm:gap-5 lg:gap-[32px]">
+      {/* Symmetrical Staggered Gallery Row */}
+      <div
+        className={cn(
+          "scrollbar-none mx-auto flex w-full max-w-[1920px] snap-x snap-mandatory items-center gap-3.5 overflow-x-auto px-4 pb-4 sm:gap-5 sm:px-8 lg:gap-[32px]",
+          galleryItems.length <= 5
+            ? "justify-start md:justify-center md:overflow-x-visible"
+            : "justify-start"
+        )}
+      >
         {galleryItems.map((item, idx) => {
-          const hideOnMobile = idx === 0 || idx === galleryItems.length - 1;
           return (
             <figure
               key={item.id}
               style={{ flex: `${item.w} 1 0%` }}
-              className={`group min-w-0 cursor-pointer flex-col items-center ${
-                hideOnMobile ? "hidden xl:flex" : "flex"
-              }`}
+              className="group flex min-w-[170px] shrink-0 snap-center cursor-pointer flex-col items-center sm:min-w-0 sm:shrink"
               onClick={() =>
                 setActiveModalImage({ src: item.image, title: item.title })
               }
             >
               <Shutter
-                tone="bg-[#054b3c]"
+                tone="bg-[#09221c]"
                 delay={0.07 * idx}
-                className="relative w-full bg-[#09221c]"
+                className="relative w-full bg-[#054b3c]/40"
               >
                 <div
                   className="zoom-frame relative w-full"
@@ -138,7 +145,7 @@ export function ProgressGallery({
                     src={item.image}
                     alt={item.title}
                     fill
-                    sizes="(min-width: 1280px) 18vw, 24vw"
+                    sizes="(min-width: 1280px) 20vw, 30vw"
                     className="object-cover object-center"
                   />
 

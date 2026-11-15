@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
+import { API_BASE } from "@/lib/api";
 import {
   RefreshCw,
   Maximize2,
@@ -18,7 +19,7 @@ import {
   VideoOff,
   Building2,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ClientFlat, LiveCamera } from "./types";
 import { cn } from "@/lib/utils";
 
@@ -749,10 +750,7 @@ export function CameraTab({
     async function fetchCameraAndProgressApis() {
       try {
         setIsLoadingApi(true);
-        const baseUrl = (
-          process.env.NEXT_PUBLIC_API_BASE_URL ||
-          "https://api.dpremiumhomes.com/api"
-        ).replace(/\/+$/, "");
+        const baseUrl = API_BASE;
 
         const [camRes, progRes] = await Promise.allSettled([
           fetch(`${baseUrl}/cameras`, {

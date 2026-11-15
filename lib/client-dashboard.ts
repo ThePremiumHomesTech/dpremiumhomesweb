@@ -6,6 +6,7 @@ import {
   ReferralTransaction,
   WishlistPropertyItem,
 } from "@/components/dashboard/types";
+import { API_BASE } from "@/lib/api";
 
 export interface UserPaymentApiResponse {
   clientInfo: {
@@ -100,10 +101,7 @@ export function resolveFlatLocation(prop: any, title?: string): string {
 export async function fetchUserPaymentInfo(
   userId: string | number
 ): Promise<UserPaymentApiResponse | null> {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   try {
     // Fetch GET /user-payment-info?user_id={userId} for payment history & breakdown,
@@ -781,10 +779,7 @@ export interface ProjectNoticeItem {
 export async function fetchProjectNotices(
   projectId: string | number
 ): Promise<ProjectNoticeItem[]> {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   try {
     const res = await fetch(`${baseUrl}/projects/${projectId}/notices`, {
@@ -839,10 +834,7 @@ export async function fetchProjectNotices(
 export async function fetchUserReferralDetails(
   userId: string | number
 ): Promise<ReferralDetails | null> {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   try {
     const endpoint = `${baseUrl}/users/${userId}/referral-details`;
@@ -903,10 +895,7 @@ export interface AppNotification {
 }
 
 export async function fetchNotifications(): Promise<AppNotification[]> {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   try {
     const res = await fetch(`${baseUrl}/notifications`, {
@@ -1006,10 +995,7 @@ export function formatDashboardProjectPrice(rawPrice?: unknown): string {
 export async function fetchUserWishlist(
   userId: string | number
 ): Promise<WishlistPropertyItem[]> {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   try {
     const res = await fetch(`${baseUrl}/users/${userId}/wishlist`, {
@@ -1232,10 +1218,7 @@ export async function addToUserWishlist(
   userId: string | number,
   propertyId: string | number
 ): Promise<{ success: boolean; message?: string }> {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   try {
     const res = await fetch(`${baseUrl}/users/${userId}/wishlist`, {
@@ -1272,10 +1255,7 @@ export async function removeFromUserWishlist(
   userId: string | number,
   propertyId: string | number
 ): Promise<{ success: boolean; message?: string }> {
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api"
-  ).replace(/\/+$/, "");
+  const baseUrl = API_BASE;
 
   try {
     const res = await fetch(

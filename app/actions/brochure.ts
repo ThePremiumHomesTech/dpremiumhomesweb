@@ -1,5 +1,7 @@
 "use server";
 
+import { API_BASE } from "@/lib/api";
+
 export type BrochureLeadState = {
   success: boolean;
   message?: string;
@@ -24,15 +26,8 @@ export async function submitBrochureLeadAction(
     };
   }
 
-  const rawBaseUrl =
-    process.env.API_BASE_URL ||
-    process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://api.dpremiumhomes.com/api";
-
-  const baseUrl = rawBaseUrl.replace(/\/+$/, "");
-
   try {
-    const response = await fetch(`${baseUrl}/brochure-leads`, {
+    const response = await fetch(`${API_BASE}/brochure-leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

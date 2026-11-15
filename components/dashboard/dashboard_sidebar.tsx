@@ -13,6 +13,7 @@ export type DashboardTab =
   | "progress"
   | "wishlist"
   | "auctions"
+  | "polls"
   | "notice"
   | "live-camera"
   | "refer"
@@ -243,12 +244,33 @@ function IconAuctions({ className }: { className?: string }) {
   );
 }
 
+function IconPolls({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <path
+        d="M18 13V19C18 20.1046 17.1046 21 16 21H5C3.89543 21 3 20.1046 3 19V8C3 6.89543 3.89543 6 5 6H12"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <path
+        d="M9 11.5L12 14.5L21 4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const NAV_ITEMS: { id: DashboardTab; label: string; icon: React.ElementType }[] = [
   { id: "overviews", label: "Overviews", icon: IconOverviews },
   { id: "payment", label: "Payment", icon: IconPayment },
   { id: "progress", label: "Progress", icon: IconProgress },
   { id: "wishlist", label: "Wishlist", icon: IconWishlist },
   { id: "auctions", label: "Auctions", icon: IconAuctions },
+  { id: "polls", label: "Polls", icon: IconPolls },
   { id: "notice", label: "Notice", icon: IconNotice },
   { id: "live-camera", label: "Live Camera", icon: IconLiveCamera },
   { id: "refer", label: "Refer & Earn", icon: IconRefer },

@@ -15,6 +15,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { ClientUser } from "@/components/dashboard/types";
+import { API_BASE } from "@/lib/api";
 import { toast } from "sonner";
 
 interface GuestSupportTabProps {
@@ -42,12 +43,47 @@ export function GuestSupportTab({ user }: GuestSupportTabProps) {
     }
 
     setIsSubmitting(true);
-    // Simulate consultation submission or connect to lead API
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setIsBooked(true);
-      toast.success("Consultation request received! Our team will contact you shortly.");
-    } catch {
+      const selectedDate = date || new Date().toISOString().split("T")[0];
+      const payload = {
+        name: fullName,
+        phone: phone,
+        email: email || user?.email || undefined,
+        date: selectedDate,
+        time: "11:00 AM",
+        subject: projectInterest
+          ? `In-Person Consultation - ${projectInterest}`
+          : `In-Person Consultation (${meetingType})`,
+        message: [
+          `Format: ${meetingType}`,
+          projectInterest ? `Project of Interest: ${projectInterest}` : null,
+          notes ? `Special Inquiries: ${notes}` : null,
+        ]
+          .filter(Boolean)
+          .join(" | "),
+      };
+
+      const res = await fetch(`${API_BASE}/consultancy-bookings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && (json.success || res.status === 201)) {
+        setIsBooked(true);
+        toast.success(
+          json.message ||
+            "Consultation request received! Our team will contact you shortly."
+        );
+      } else {
+        toast.error(json.message || "Could not submit request. Please try again.");
+      }
+    } catch (err) {
+      console.error("Consultation booking error:", err);
       toast.error("Could not submit request. Please try again.");
     } finally {
       setIsSubmitting(false);

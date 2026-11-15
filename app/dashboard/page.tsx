@@ -10,6 +10,7 @@ import { PaymentTab } from "@/components/dashboard/payment_tab";
 import { ProgressTab } from "@/components/dashboard/progress_tab";
 import { WishlistTab } from "@/components/dashboard/wishlist_tab";
 import { AuctionTab } from "@/components/dashboard/auction_tab";
+import { PollsTab } from "@/components/dashboard/polls_tab";
 import { NoticeTab } from "@/components/dashboard/notice_tab";
 import { CameraTab } from "@/components/dashboard/camera_tab";
 import { ReferTab } from "@/components/dashboard/refer_tab";
@@ -264,6 +265,10 @@ function DashboardContent() {
 
               {activeTab === "auctions" && (
                 <AuctionTab user={user} myFlats={myFlats} isLoading={isLoading} />
+              )}
+
+              {activeTab === "polls" && (
+                <PollsTab user={user} myFlats={myFlats} isLoading={isLoading} />
               )}
 
               {activeTab === "notice" && (

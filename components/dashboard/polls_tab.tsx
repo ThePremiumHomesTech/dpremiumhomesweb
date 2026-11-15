@@ -106,7 +106,7 @@ export function PollsTab({ user, myFlats = [] }: PollsTabProps) {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch(`${ERP_API_BASE}/api/polls?client_id=${effectiveUserId}`, {
+      const res = await fetch(`${ERP_API_BASE}/api/polls?client_id=${effectiveUserId}&is_admin=1`, {
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Failed to fetch polls");
@@ -530,7 +530,8 @@ export function PollsTab({ user, myFlats = [] }: PollsTabProps) {
             const isClosed = poll.status === "closed" || poll.is_expired;
             const bannerUrl = getAbsoluteImageUrl(poll.image_url || poll.image);
             const isChangingVote = changingVotePollIds.has(poll.id);
-            const showResults = poll.has_voted && !isChangingVote;
+            // Show percentage results if user has voted OR if the poll has closed
+            const showResults = (poll.has_voted || isClosed) && !isChangingVote;
             const currentSelected = selectedOptions[poll.id];
 
             return (
@@ -745,6 +746,13 @@ export function PollsTab({ user, myFlats = [] }: PollsTabProps) {
 
                     {/* Voting Controls */}
                     <div className="flex items-center gap-2">
+                      {isClosed && (
+                        <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-stone-100 text-stone-600 text-xs font-medium">
+                          <Clock className="size-3.5 text-stone-500" />
+                          <span>Voting Closed ({poll.end_date || "Ended"})</span>
+                        </div>
+                      )}
+
                       {!showResults && !isClosed && (
                         <button
                           type="button"

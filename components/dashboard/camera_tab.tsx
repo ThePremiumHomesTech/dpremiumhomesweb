@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { ClientFlat, LiveCamera } from "./types";
+import { resolveDefaultCameraLinks } from "@/lib/client-dashboard";
 import { cn } from "@/lib/utils";
 
 interface CameraTabProps {
@@ -197,11 +198,13 @@ function ProjectCameraCard({
       return;
     }
 
-    // If YouTube or Vimeo embed link, iframe handles playback directly
+    // If YouTube, Vimeo, or RTSP embed link, iframe handles playback directly
     if (
       activeCamera.camera_link.includes("youtube.com") ||
       activeCamera.camera_link.includes("youtu.be") ||
-      activeCamera.camera_link.includes("vimeo.com")
+      activeCamera.camera_link.includes("vimeo.com") ||
+      activeCamera.camera_link.includes("rtsp.me") ||
+      activeCamera.camera_link.includes("/embed/")
     ) {
       setStreamBuffering(false);
       setStreamError(false);
@@ -363,7 +366,9 @@ function ProjectCameraCard({
     activeCamera?.camera_link &&
       (activeCamera.camera_link.includes("youtube.com") ||
         activeCamera.camera_link.includes("youtu.be") ||
-        activeCamera.camera_link.includes("vimeo.com"))
+        activeCamera.camera_link.includes("vimeo.com") ||
+        activeCamera.camera_link.includes("rtsp.me") ||
+        activeCamera.camera_link.includes("/embed/"))
   );
 
   const detailSlug =
@@ -413,10 +418,14 @@ function ProjectCameraCard({
           </div>
         </div>
 
-        {/* Link to full project progress details */}
+        {/* Link to full flat / project progress details */}
         <Link
-          href={`/project-progress/${detailSlug}`}
-          title="View Full Project Progress"
+          href={
+            project.flatNo
+              ? `/flat/${detailSlug}?flatNo=${encodeURIComponent(project.flatNo)}`
+              : `/project-progress/${detailSlug}`
+          }
+          title={project.flatNo ? "View Flat Details" : "View Full Project Progress"}
           className="relative shrink-0 size-[24px] text-[#232f43] hover:text-[#054b3c] transition-colors flex items-center justify-center"
         >
           <svg viewBox="0 0 24 24" fill="none" className="size-full">
@@ -845,53 +854,82 @@ export function CameraTab({
     matchedProgress: ApiConstructionProgressItem | null
   ): LiveCamera[] => {
     const combined: LiveCamera[] = [];
-    const seenIds = new Set<string | number>();
+    const seenUrls = new Set<string>();
 
-    // Include any cameras directly embedded in the matched progress record
-    if (Array.isArray(matchedProgress?.cameras)) {
-      matchedProgress.cameras.forEach((c) => {
-        if (c && !seenIds.has(c.id)) {
-          seenIds.add(c.id);
-          combined.push(c);
-        }
+    const addCam = (cam: LiveCamera) => {
+      const linkKey = (cam.camera_link || "").trim().toLowerCase();
+      if (!linkKey || seenUrls.has(linkKey)) return;
+      seenUrls.add(linkKey);
+      combined.push(cam);
+    };
+
+    // 1. User's booked flat assigned video links (from user.json or fallback)
+    const fallbackLinks = resolveDefaultCameraLinks(proj.slug, proj.title);
+    const primaryCamLink = proj.videoLink || fallbackLinks.videoLink;
+    const secondaryCamLink = proj.videoLink2 || fallbackLinks.videoLink2;
+
+    if (primaryCamLink) {
+      addCam({
+        id: `flat-cam-1-${proj.id}`,
+        camera_name: "Camera 1",
+        camera_link: primaryCamLink,
+        status: "active",
+        project_name: proj.title,
+        location: proj.location,
       });
     }
 
-    if (allCameras.length === 0) return combined;
-
-    const targetIds = new Set<number>();
-    if (Number(proj.project_id) > 0) targetIds.add(Number(proj.project_id));
-    if (Number(matchedProgress?.property_id) > 0) {
-      targetIds.add(Number(matchedProgress?.property_id));
+    if (secondaryCamLink) {
+      addCam({
+        id: `flat-cam-2-${proj.id}`,
+        camera_name: "Camera 2",
+        camera_link: secondaryCamLink,
+        status: "active",
+        project_name: proj.title,
+        location: proj.location,
+      });
     }
 
-    const normUserTitle = normalizeProjectName(
-      matchedProgress?.project_name || matchedProgress?.property_name || proj.title
-    );
+    // 2. Include any cameras directly embedded in the matched progress record
+    if (Array.isArray(matchedProgress?.cameras)) {
+      matchedProgress.cameras.forEach((c) => {
+        if (c && c.camera_link) addCam(c);
+      });
+    }
 
-    allCameras.forEach((cam) => {
-      if (seenIds.has(cam.id)) return;
-
-      // 1. Match by numeric project_id
-      if (cam.project_id && targetIds.has(Number(cam.project_id))) {
-        seenIds.add(cam.id);
-        combined.push(cam);
-        return;
+    // 3. Match from allCameras API if available
+    if (allCameras.length > 0) {
+      const targetIds = new Set<number>();
+      if (Number(proj.project_id) > 0) targetIds.add(Number(proj.project_id));
+      if (Number(matchedProgress?.property_id) > 0) {
+        targetIds.add(Number(matchedProgress?.property_id));
       }
 
-      // 2. Match by normalized project_name
-      const normCamProj = normalizeProjectName(cam.project_name);
-      if (
-        normUserTitle &&
-        normCamProj &&
-        (normCamProj === normUserTitle ||
-          normCamProj.includes(normUserTitle) ||
-          normUserTitle.includes(normCamProj))
-      ) {
-        seenIds.add(cam.id);
-        combined.push(cam);
-      }
-    });
+      const normUserTitle = normalizeProjectName(
+        matchedProgress?.project_name || matchedProgress?.property_name || proj.title
+      );
+
+      allCameras.forEach((cam) => {
+        if (!cam.camera_link) return;
+        // Match by numeric project_id
+        if (cam.project_id && targetIds.has(Number(cam.project_id))) {
+          addCam(cam);
+          return;
+        }
+
+        // Match by normalized project_name
+        const normCamProj = normalizeProjectName(cam.project_name);
+        if (
+          normUserTitle &&
+          normCamProj &&
+          (normCamProj === normUserTitle ||
+            normCamProj.includes(normUserTitle) ||
+            normUserTitle.includes(normCamProj))
+        ) {
+          addCam(cam);
+        }
+      });
+    }
 
     return combined;
   };

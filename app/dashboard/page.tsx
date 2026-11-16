@@ -189,7 +189,9 @@ function DashboardContent() {
   };
 
   const handleSelectProject = (project: ClientFlat) => {
-    setActiveTab("progress");
+    const slug = project.slug || "the-premium-harmony-residence";
+    const query = project.flatNo ? `?flatNo=${encodeURIComponent(project.flatNo)}` : "";
+    router.push(`/flat/${slug}${query}`);
   };
 
   return (

@@ -675,7 +675,10 @@ export function OverviewTab({
                   className="group bg-white flex flex-col justify-between p-4 sm:p-[18px] relative rounded-[22px] border border-[#e6e2d8] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(8,51,39,0.1)] hover:border-[#083327]/35 transition-all duration-500 ease-out"
                 >
                   {/* Project Image */}
-                  <div className="zoom-frame relative w-full aspect-[16/10] rounded-[16px] overflow-hidden shrink-0 bg-[#eef1ef]">
+                  <div
+                    onClick={() => onSelectProject?.(flat)}
+                    className="zoom-frame relative w-full aspect-[16/10] rounded-[16px] overflow-hidden shrink-0 bg-[#eef1ef] cursor-pointer"
+                  >
                     <Image
                       src={flat.image || "/image/progress/tph_green_valley.png"}
                       alt={flat.title}
@@ -704,7 +707,10 @@ export function OverviewTab({
                   <div className="pt-4 px-1 flex-1 flex flex-col justify-between w-full">
                     {/* Title + Location */}
                     <div>
-                      <h3 className="font-heading text-lg sm:text-[21px] font-medium text-[#083327] tracking-tight leading-snug line-clamp-1 group-hover:text-[#cfa564] transition-colors duration-300">
+                      <h3
+                        onClick={() => onSelectProject?.(flat)}
+                        className="font-heading text-lg sm:text-[21px] font-medium text-[#083327] tracking-tight leading-snug line-clamp-1 group-hover:text-[#cfa564] transition-colors duration-300 cursor-pointer"
+                      >
                         {flat.title}
                       </h3>
                       <div className="flex items-center gap-1.5 text-xs text-[#718078] mt-1.5 font-sans">

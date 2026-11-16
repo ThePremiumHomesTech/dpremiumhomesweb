@@ -114,13 +114,13 @@ export interface ReferralDetails {
 }
 
 export interface LiveCamera {
-  id: number;
-  project_id: number;
-  project_name: string;
-  location: string;
-  camera_name: string;
+  id: number | string;
+  project_id?: number | string;
+  project_name?: string;
+  location?: string;
+  camera_name?: string;
   camera_link: string;
-  status: string;
+  status?: string;
 }
 
 /** One bid on an auction. Amounts are raw taka, as the API stores them. */

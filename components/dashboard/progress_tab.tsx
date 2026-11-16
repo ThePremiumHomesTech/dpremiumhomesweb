@@ -651,14 +651,21 @@ export function ProgressTab({
       ) : (
         /* 4. Luxury Project Cards Grid (Exact Frontend Alignment) */
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-7">
-          {displayedCards.map((card) => (
+          {displayedCards.map((card) => {
+            const targetUrl = card.isUserOwned
+              ? `/flat/${card.slug || card.propertyId || "the-premium-harmony-residence"}${
+                  card.flatNo ? `?flatNo=${encodeURIComponent(card.flatNo)}` : ""
+                }`
+              : `/project-progress/${card.slug || card.propertyId || card.id}`;
+
+            return (
             <article
               key={card.id}
               className="group relative rounded-[22px] bg-white border border-[#e6e2d8] p-4 sm:p-[18px] shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_20px_45px_rgba(8,51,39,0.1)] hover:border-[#083327]/35 hover:-translate-y-1.5 transition-all duration-500 ease-out flex flex-col justify-between"
             >
               {/* Image Container with HoverShutter effect like Frontend */}
               <Link
-                href={`/project-progress/${card.slug || card.propertyId || card.id}`}
+                href={targetUrl}
                 className="zoom-frame relative block w-full aspect-[16/10] rounded-[16px] overflow-hidden bg-[#eef1ef]"
               >
                 <div className="absolute inset-0">
@@ -714,9 +721,7 @@ export function ProgressTab({
                 {/* Title & Location */}
                 <div>
                   <h3 className="font-heading text-xl sm:text-[23px] font-medium text-[#083327] tracking-tight leading-snug line-clamp-1 group-hover:text-[#cfa564] transition-colors duration-300">
-                    <Link
-                      href={`/project-progress/${card.slug || card.propertyId || card.id}`}
-                    >
+                    <Link href={targetUrl}>
                       {card.title}
                     </Link>
                   </h3>
@@ -800,7 +805,7 @@ export function ProgressTab({
                 {/* View Progress Action Button with Sliding Arrow */}
                 <div className="mt-5 pt-1">
                   <Link
-                    href={`/project-progress/${card.slug || card.propertyId || card.id}`}
+                    href={targetUrl}
                     className="group/btn relative w-full inline-flex items-center justify-center gap-2 py-3 px-5 rounded-full text-xs font-semibold tracking-[0.14em] uppercase text-[#083327] border border-[#083327]/30 bg-transparent hover:bg-[#083327] hover:text-white hover:border-[#083327] transition-all duration-300 shadow-2xs active:scale-[0.98]"
                   >
                     <span>VIEW PROGRESS</span>
@@ -809,7 +814,8 @@ export function ProgressTab({
                 </div>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

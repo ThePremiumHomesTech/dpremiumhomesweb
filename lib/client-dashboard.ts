@@ -45,6 +45,45 @@ export function formatTaka(val: number): string {
   return `৳ ${val.toLocaleString("en-IN")}`;
 }
 
+// Helper to resolve fallback cameras and official document links for booked properties
+export function resolveDefaultCameraLinks(slug?: string, title?: string): {
+  videoLink?: string;
+  videoLink2?: string;
+  moneyReceiptLink?: string;
+  purchaseDetailsLink?: string;
+} {
+  const norm = `${slug || ""} ${title || ""}`.toLowerCase();
+  if (norm.includes("harmony")) {
+    return {
+      videoLink: "https://rtsp.me/embed/4BtSR2sB/",
+      videoLink2: "https://rtsp.me/embed/EEKRdE98/",
+      moneyReceiptLink: "https://drive.google.com/drive/folders/1BsUQnHiX-RPLBpcy6Lbc77xWcK4g9P_X?usp=drive_link",
+      purchaseDetailsLink: "https://docs.google.com/spreadsheets/d/1w44T8yCyybFm1cjRioseVxrs8As7pSgUpyPSZWlsvPk/edit?gid=879783164#gid=879783164",
+    };
+  }
+  if (norm.includes("green") || norm.includes("valley") || norm.includes("garden view") || norm.includes("suite 3")) {
+    return {
+      videoLink: "https://rtsp.me/embed/zkYhn9Hs/",
+      videoLink2: "https://rtsp.me/embed/Ek9efBY6/",
+      moneyReceiptLink: "https://drive.google.com/drive/folders/17UKM-WodSKGrYmyVMevJeq1LgqBFivKg",
+      purchaseDetailsLink: "https://docs.google.com/spreadsheets/d/14JlevxCW0M3Y85_akQB6xPLvIB0WNmAEq0KIA_0rgB4/edit?usp=drivesdk",
+    };
+  }
+  if (norm.includes("glory") || norm.includes("garden")) {
+    return {
+      videoLink: "https://rtsp.me/embed/T3yy42rf/",
+      videoLink2: "https://rtsp.me/embed/b5D5454Q/",
+    };
+  }
+  if (norm.includes("south point") || norm.includes("south-point")) {
+    return {
+      videoLink: "https://rtsp.me/embed/4BtSR2sB/",
+      videoLink2: "https://rtsp.me/embed/EEKRdE98/",
+    };
+  }
+  return {};
+}
+
 export function resolveFlatLocation(prop: any, title?: string): string {
   const direct =
     prop?.location ||
@@ -254,10 +293,13 @@ export async function fetchUserPaymentInfo(
         paidEmiCount = Math.min(totalEmi, Math.floor(paidAfterDev / perEmi));
       }
 
+      const fallbackMeta = resolveDefaultCameraLinks(prop.slug, prop.name || prop.title);
+      const resolvedSlug = prop.slug || (prop.name ? String(prop.name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") : "the-premium-green-valley");
+
       return {
         id: `flat-${prop.id || "prop"}-${idx}`,
         project_id: prop.project_id || prop.projectId || prop.id,
-        title: prop.name || "The Premium Green Valley",
+        title: prop.name || prop.title || "The Premium Property",
         flatNo: prop.flatNo || "",
         flatSize: prop.flatSize || "",
         location: resolveFlatLocation(prop, prop.name || prop.title),
@@ -265,7 +307,7 @@ export async function fetchUserPaymentInfo(
         status: "Under Construction",
         construction_pct: parseAmount(prop.construction_pct || prop.progress) || 0,
         handover_date: prop.estimatedDate ? `Dec ${prop.estimatedDate}` : "Dec 2027",
-        price: prop.price ? `৳ ${prop.price}` : formatTaka(parseAmount(prop.price)),
+        price: prop.price ? (String(prop.price).startsWith("৳") ? String(prop.price) : `৳ ${prop.price}`) : formatTaka(parseAmount(prop.price)),
         partial_payment: prop.partial_payment ? String(prop.partial_payment) : undefined,
         due_payment: prop.due_payment ? String(prop.due_payment) : undefined,
         discount: prop.discount ? String(prop.discount) : undefined,
@@ -277,11 +319,11 @@ export async function fetchUserPaymentInfo(
         per_emi_amount: perEmi > 0 ? perEmi : undefined,
         total_emi: totalEmi > 0 ? totalEmi : undefined,
         paid_emi: paidEmiCount,
-        slug: prop.slug || "the-premium-green-valley",
-        videoLink: prop.videoLink,
-        videoLink2: prop.videoLink2,
-        moneyReceiptLink: prop.moneyReceiptLink,
-        purchaseDetailsLink: prop.purchaseDetailsLink,
+        slug: resolvedSlug,
+        videoLink: prop.videoLink || fallbackMeta.videoLink,
+        videoLink2: prop.videoLink2 || fallbackMeta.videoLink2,
+        moneyReceiptLink: prop.moneyReceiptLink || fallbackMeta.moneyReceiptLink,
+        purchaseDetailsLink: prop.purchaseDetailsLink || fallbackMeta.purchaseDetailsLink,
       };
     });
 
@@ -292,6 +334,7 @@ export async function fetchUserPaymentInfo(
         const payInfo = b?.payment_info || {};
         const landInfo = payInfo?.land_share_info || {};
         const devInfo = payInfo?.development_charge_info || {};
+        const fallbackMeta = resolveDefaultCameraLinks(projInfo.slug, projInfo.project_name);
 
         dynamicFlats.push({
           id: `flat-booking-${b.booking_id || bIdx}`,
@@ -312,6 +355,10 @@ export async function fetchUserPaymentInfo(
           land_share_due: parseAmount(landInfo.land_share_due),
           development_charges_due: parseAmount(devInfo.development_charge_due),
           slug: projInfo.slug || "the-premium-green-valley",
+          videoLink: fallbackMeta.videoLink,
+          videoLink2: fallbackMeta.videoLink2,
+          moneyReceiptLink: fallbackMeta.moneyReceiptLink,
+          purchaseDetailsLink: fallbackMeta.purchaseDetailsLink,
         });
       });
     }

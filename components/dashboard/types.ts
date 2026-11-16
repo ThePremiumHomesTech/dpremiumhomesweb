@@ -7,6 +7,8 @@ export interface ClientUser {
   email?: string;
   phone?: string;
   avatar?: string;
+  image?: string;
+  address?: string;
   flat_no?: string;
   building_name?: string;
   total_paid?: string;

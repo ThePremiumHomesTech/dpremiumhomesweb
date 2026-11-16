@@ -179,10 +179,18 @@ function DashboardContent() {
   };
 
   const handleUpdateUser = (updated: ClientUser) => {
-    setUser(updated);
+    setUser((prev) => ({ ...(prev || {}), ...updated }));
     try {
       localStorage.setItem("tphl_user", JSON.stringify(updated));
       localStorage.setItem("user", JSON.stringify(updated));
+      const storedAuth = localStorage.getItem("tphl_auth_data");
+      if (storedAuth) {
+        try {
+          const parsed = JSON.parse(storedAuth);
+          if (parsed?.user) parsed.user = { ...parsed.user, ...updated };
+          localStorage.setItem("tphl_auth_data", JSON.stringify(parsed));
+        } catch {}
+      }
     } catch (e) {
       console.error("Error updating user in localStorage:", e);
     }

@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Appear, Shutter } from "@/components/ui/motion";
 import { GreenPill, Heading } from "@/components/ui/primitives";
+import { ERP_BASE_URL } from "@/lib/api";
 import { cn, fluid } from "@/lib/utils";
 
 // Figma fields: 24px Vazirmatn labels and values, 24px padding, #E6E6E6 hairline.
@@ -46,27 +47,57 @@ export function LifeAtTphlJoinTeam() {
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const selectResumeFile = (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Resume file must be 10 MB or smaller.");
+      return;
+    }
+    setResumeFile(file);
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files?.[0]) setResumeFile(e.dataTransfer.files[0]);
+    selectResumeFile(e.dataTransfer.files?.[0]);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (!resumeFile) {
-      toast.error("Please attach your resume (PDF/DOC) before submitting.");
+      toast.error("Please attach your resume (PDF/DOC/DOCX) before submitting.");
       return;
     }
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success("Application submitted successfully! Our HR team will review your resume and contact you soon.");
+    try {
+      const body = new FormData();
+      body.append("full_name", fullName.trim());
+      body.append("phone", phone.trim());
+      body.append("email", email.trim());
+      body.append("resume_file", resumeFile);
+
+      const res = await fetch(`${ERP_BASE_URL}/api/jobs/apply`, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body,
+      });
+      const payload = await res.json().catch(() => null);
+      if (!res.ok || payload?.success === false) {
+        throw new Error(payload?.message || `HTTP ${res.status}`);
+      }
+
+      toast.success(payload?.message || "Application submitted successfully! Our HR team will review your resume and contact you soon.");
       setFullName("");
       setPhone("");
       setEmail("");
       setResumeFile(null);
-    }, 1000);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to submit application. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -113,7 +144,16 @@ export function LifeAtTphlJoinTeam() {
               )}
               style={TEXT}
             >
-              <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx" onChange={(e) => e.target.files?.[0] && setResumeFile(e.target.files[0])} className="hidden" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={(e) => {
+                  selectResumeFile(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+                className="hidden"
+              />
               {resumeFile ? (
                 <>
                   <CheckCircle className="size-6 shrink-0 md:size-8" />
